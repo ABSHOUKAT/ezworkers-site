@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EzWorkers Admin — Paste Job</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f0;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:2rem}
+  .card{background:#fff;border-radius:16px;padding:2rem;width:100%;max-width:640px;box-shadow:0 2px 12px rgba(0,0,0,.08)}
+  h1{font-size:20px;font-weight:600;color:#0f172a;margin-bottom:.25rem}
+  .sub{font-size:13px;color:#64748b;margin-bottom:1.5rem}
+  label{display:block;font-size:13px;font-weight:500;color:#374151;margin-bottom:.4rem}
+  input[type=text],input[type=password],textarea{width:100%;border:1px solid #d1d5db;border-radius:8px;padding:.65rem .85rem;font-size:14px;font-family:inherit;outline:none;transition:border .15s;color:#0f172a;background:#fff}
+  input:focus,textarea:focus{border-color:#1A6FC4}
+  textarea{min-height:220px;resize:vertical;line-height:1.5}
+  .field{margin-bottom:1.1rem}
+  .btn{width:100%;padding:.75rem;background:#1A6FC4;color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:600;cursor:pointer;transition:background .15s;margin-top:.5rem}
+  .btn:hover{background:#155fa0}
+  .btn:disabled{background:#93c5fd;cursor:not-allowed}
+  .result{margin-top:1rem;padding:.9rem 1rem;border-radius:8px;font-size:13px;display:none}
+  .result.success{background:#f0fdf4;border:1px solid #86efac;color:#15803d}
+  .result.error{background:#fef2f2;border:1px solid #fca5a5;color:#dc2626}
+  .result.loading{background:#eff6ff;border:1px solid #93c5fd;color:#1d4ed8}
+  .tip{font-size:12px;color:#6b7280;margin-top:.5rem;line-height:1.5}
+  #pin-screen,#paste-screen{display:none}
+  #pin-screen.active,#paste-screen.active{display:block}
+  .logo{display:flex;align-items:center;gap:.6rem;margin-bottom:1.5rem}
+  .logo-mark{width:36px;height:36px;border-radius:9px;background:#1A6FC4;display:flex;align-items:center;justify-content:center}
+  .logo-name{font-size:18px;font-weight:700;color:#0f172a}
+  .logo-name span{color:#F47B2B}
+  .job-preview{background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:.85rem;margin-top:.75rem;display:none}
+  .job-preview h3{font-size:13px;font-weight:600;color:#1e293b;margin-bottom:.35rem}
+  .jp-row{font-size:12px;color:#475569;margin-bottom:.15rem}
+  .jp-row strong{color:#0f172a}
+  .badge{display:inline-block;font-size:11px;font-weight:500;padding:2px 8px;border-radius:20px;background:#e0f2fe;color:#0369a1;margin-right:4px}
+</style>
+</head>
+<body>
+
+<div class="card">
+  <div class="logo">
+    <div class="logo-mark">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+        <circle cx="9" cy="8" r="3.5" stroke="#fff" stroke-width="1.8"/>
+        <path d="M3 19c0-3.314 2.686-6 6-6" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/>
+        <path d="M15 13l2 2 4-4" stroke="#F47B2B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <div class="logo-name">Ez<span>Workers</span> Admin</div>
+  </div>
+
+  <!-- PIN screen -->
+  <div id="pin-screen" class="active">
+    <h1>Admin access</h1>
+    <p class="sub">Enter your PIN to continue</p>
+    <div class="field">
+      <label for="pin-input">Admin PIN</label>
+      <input type="password" id="pin-input" placeholder="Enter PIN" autocomplete="off">
+    </div>
+    <button class="btn" onclick="checkPin()">Continue</button>
+    <div class="result" id="pin-result"></div>
+  </div>
+
+  <!-- Paste screen -->
+  <div id="paste-screen">
+    <h1>Paste a job listing</h1>
+    <p class="sub">Copy any job text from LinkedIn, WhatsApp, PDF, or a website and paste it below. Claude will extract all fields automatically.</p>
+
+    <div class="field">
+      <label for="job-text">Paste raw job text here</label>
+      <textarea id="job-text" placeholder="Paste the full job advertisement here — title, company, description, requirements, how to apply. The messier the better. Claude handles it."></textarea>
+      <p class="tip">Minimum 50 characters. You can paste one job at a time. There is no limit on how many times you use this tool per day.</p>
+    </div>
+
+    <button class="btn" id="submit-btn" onclick="submitJob()">Extract and publish job</button>
+
+    <div class="result" id="submit-result"></div>
+    <div class="job-preview" id="job-preview">
+      <h3>Job published successfully</h3>
+      <div class="jp-row" id="jp-title"></div>
+      <div class="jp-row" id="jp-company"></div>
+      <div id="jp-badges"></div>
+    </div>
+
+    <div style="margin-top:1.5rem;padding-top:1.25rem;border-top:1px solid #f1f5f9">
+      <p class="tip">Paste another job above and click the button again. Each submission is independent.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── CONFIG — update WORKER_URL after you deploy the Cloudflare Worker ──────
+const WORKER_URL = "https://ezworkers-paste-agent.YOUR-SUBDOMAIN.workers.dev";
+
+let adminPin = "";
+
+function showResult(el, type, msg) {
+  el.style.display = "block";
+  el.className = `result ${type}`;
+  el.textContent = msg;
+}
+
+function checkPin() {
+  const pin = document.getElementById("pin-input").value.trim();
+  const res = document.getElementById("pin-result");
+  if (!pin) { showResult(res, "error", "Please enter your PIN."); return; }
+  adminPin = pin;
+  // We do a lightweight test by sending a short text — if PIN is wrong the worker will reject
+  document.getElementById("pin-screen").classList.remove("active");
+  document.getElementById("paste-screen").classList.add("active");
+}
+
+async function submitJob() {
+  const text = document.getElementById("job-text").value.trim();
+  const btn  = document.getElementById("submit-btn");
+  const res  = document.getElementById("submit-result");
+  const prev = document.getElementById("job-preview");
+
+  prev.style.display = "none";
+
+  if (text.length < 50) {
+    showResult(res, "error", "Please paste more text — at least 50 characters.");
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = "Extracting with Claude...";
+  showResult(res, "loading", "Claude is reading the job text and extracting fields. This takes 3-6 seconds...");
+
+  try {
+    const r = await fetch(WORKER_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ pin: adminPin, text }),
+    });
+
+    const data = await r.json();
+
+    if (!r.ok || !data.success) {
+      if (r.status === 401) {
+        showResult(res, "error", "Wrong PIN. Refresh the page and try again.");
+      } else {
+        showResult(res, "error", `Error: ${data.error || "Unknown error"}. ${data.detail || ""}`);
+      }
+      return;
+    }
+
+    showResult(res, "success", "Job published to EzWorkers successfully.");
+
+    document.getElementById("jp-title").innerHTML   = `<strong>${data.job.title}</strong>`;
+    document.getElementById("jp-company").innerHTML = data.job.company ? `at ${data.job.company}` : "";
+    document.getElementById("jp-badges").innerHTML  =
+      `<span class="badge">${data.job.country}</span><span class="badge">${data.job.sector}</span>`;
+    prev.style.display = "block";
+
+    document.getElementById("job-text").value = "";
+
+  } catch (e) {
+    showResult(res, "error", `Network error: ${e.message}. Check that the Worker URL is set correctly in this file.`);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = "Extract and publish job";
+  }
+}
+
+// Allow Enter key on PIN input
+document.getElementById("pin-input").addEventListener("keydown", e => {
+  if (e.key === "Enter") checkPin();
+});
+</script>
+</body>
+</html>
