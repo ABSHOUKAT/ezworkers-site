@@ -2,7 +2,7 @@
 """
 EzWorkers Content Agent
 Runs Monday and Thursday at 05:00 UTC (08:00 Riyadh time)
-Fetches trending career topics → Claude writes EN + AR article → commits to articles.json
+Fetches trending career topics -> Claude writes EN + AR article -> commits to articles.json
 Site reads articles.json directly from GitHub raw — no redeployment needed.
 
 STRICT GUARDRAILS (hardcoded — cannot be overridden):
@@ -23,27 +23,24 @@ import xml.etree.ElementTree as ET
 from datetime import datetime, timezone
 from pathlib import Path
 
-# ── Credentials ─────────────────────────────────────────────────────────────
+# Credentials
 ANTHROPIC_API_KEY = os.environ["ANTHROPIC_API_KEY"]
 
-# ── Output file (committed to repo, read by site at runtime) ─────────────────
+# Output file
 ARTICLES_FILE = Path("content/articles.json")
 
-# ── Safe topic sources (public RSS/APIs, no auth needed) ────────────────────
+# Safe topic sources
 TREND_SOURCES = [
-    # Google Trends RSS — jobs/career category
     "https://trends.google.com/trending/rss?geo=SA",
     "https://trends.google.com/trending/rss?geo=AE",
     "https://trends.google.com/trending/rss?geo=QA",
-    # Reddit public JSON (no auth for public subreddits)
     "https://www.reddit.com/r/saudiarabia/top.json?limit=10&t=week",
     "https://www.reddit.com/r/dubai/top.json?limit=10&t=week",
     "https://www.reddit.com/r/expats/search.json?q=jobs+GCC&sort=top&t=week&limit=10",
-    # Hacker News — jobs tag
     "https://hnrss.org/newest?q=jobs+hiring&count=10",
 ]
 
-# ── Topics that are always safe and high-value for GCC job seekers ──────────
+# High-value fallback topics — used when trending topics are not career-relevant
 FALLBACK_TOPICS = [
     "Top skills Saudi Arabia employers are hiring for in 2026",
     "How to transfer your iqama in Saudi Arabia — complete guide",
@@ -57,9 +54,12 @@ FALLBACK_TOPICS = [
     "LinkedIn strategies for GCC job seekers",
     "Engineering roles in UAE mega-projects 2026",
     "Finance and banking careers in Saudi Arabia post-Vision 2030",
+    "How to find procurement jobs in Saudi Arabia as an expat",
+    "Top companies hiring in Dubai in 2026",
+    "Career guide for materials engineers in the GCC",
 ]
 
-# ── Keywords that flag a topic as unsafe — skip immediately ─────────────────
+# Keywords that immediately disqualify a topic
 UNSAFE_KEYWORDS = [
     "protest", "arrested", "ban", "banned", "lawsuit", "corruption",
     "human rights", "criticism", "criticize", "condemn", "scandal",
@@ -67,6 +67,18 @@ UNSAFE_KEYWORDS = [
     "government crackdown", "opposition", "political", "sanction",
     "conflict", "war", "attack", "terrorism", "extremist",
     "controversy", "controversial", "backlash", "outrage",
+    "petrol price", "fuel price", "oil price", "gas price",
+    "stock market", "crypto", "bitcoin", "inflation", "interest rate",
+]
+
+# A topic MUST contain at least one of these to be considered career-relevant
+CAREER_REQUIRED_KEYWORDS = [
+    "job", "jobs", "career", "hire", "hiring", "salary", "employment",
+    "recruit", "skill", "skills", "professional", "engineer", "manager",
+    "procurement", "construction", "workforce", "talent", "vacancy",
+    "iqama", "expat", "work permit", "cv", "resume", "interview",
+    "promotion", "industry", "sector", "company hiring", "jobs in",
+    "careers in", "working in", "employed", "employer",
 ]
 
 def is_safe_topic(text: str) -> bool:
@@ -74,23 +86,34 @@ def is_safe_topic(text: str) -> bool:
     return not any(kw in low for kw in UNSAFE_KEYWORDS)
 
 def is_career_relevant(text: str) -> bool:
-    career_kw = [
-        "job", "jobs", "career", "hire", "hiring", "salary", "work",
-        "employment", "recruit", "skill", "professional", "engineer",
-        "manager", "procurement", "construction", "energy", "finance",
-        "vision 2030", "neom", "gcc", "saudi", "uae", "qatar",
-        "expat", "iqama", "workforce", "talent", "industry",
-    ]
     low = text.lower()
-    return any(kw in low for kw in career_kw)
+    return any(kw in low for kw in CAREER_REQUIRED_KEYWORDS)
+
+def clean_json_response(raw: str) -> str:
+    raw = raw.strip()
+    # Remove markdown code fences
+    if raw.startswith("```"):
+        parts = raw.split("```")
+        for part in parts:
+            p = part.strip()
+            if p.startswith("json"):
+                p = p[4:].strip()
+            if p.startswith("{"):
+                raw = p
+                break
+    raw = raw.strip().rstrip("`").strip()
+    # Find the first { and last } to extract just the JSON object
+    start = raw.find("{")
+    end   = raw.rfind("}")
+    if start != -1 and end != -1:
+        raw = raw[start:end+1]
+    return raw
 
 def fetch_trending_topics() -> list[str]:
     topics = []
-
     for url in TREND_SOURCES:
         try:
             headers = {"User-Agent": "EzWorkers/1.0 content-bot"}
-
             if "reddit.com" in url:
                 r = requests.get(url, headers=headers, timeout=10)
                 if r.status_code != 200:
@@ -99,7 +122,8 @@ def fetch_trending_topics() -> list[str]:
                 posts = data.get("data", {}).get("children", [])
                 for post in posts:
                     title = post.get("data", {}).get("title", "")
-                    if title and is_safe_topic(title):
+                    # Reddit: must pass safety AND career check
+                    if title and is_safe_topic(title) and is_career_relevant(title):
                         topics.append(title)
 
             elif "trends.google.com" in url:
@@ -109,7 +133,8 @@ def fetch_trending_topics() -> list[str]:
                 root = ET.fromstring(r.content)
                 for item in root.iter("item"):
                     title = item.findtext("title", "")
-                    if title and is_safe_topic(title):
+                    # Google Trends: must pass safety AND career check
+                    if title and is_safe_topic(title) and is_career_relevant(title):
                         topics.append(title)
 
             elif "hnrss.org" in url:
@@ -125,37 +150,51 @@ def fetch_trending_topics() -> list[str]:
         except Exception as e:
             print(f"  Trend source error ({url[:50]}): {e}")
 
-    # Filter to career-relevant topics only
-    career_topics = [t for t in topics if is_career_relevant(t)]
-    print(f"  Found {len(career_topics)} safe career-relevant trending topics")
+    print(f"  Found {len(topics)} safe career-relevant trending topics")
 
-    # If not enough trending topics, use fallbacks
-    if len(career_topics) < 2:
-        print("  Using fallback topics")
-        # Pick one that hasn't been published recently
-        existing = load_existing_articles()
-        existing_titles = [a.get("title_en", "").lower() for a in existing]
-        for topic in FALLBACK_TOPICS:
-            if not any(topic.lower()[:30] in t for t in existing_titles):
-                career_topics.append(topic)
-                if len(career_topics) >= 3:
-                    break
+    # Always supplement with fallbacks to ensure we have enough candidates
+    existing       = load_existing_articles()
+    used_topics    = [a.get("source_topic", "").lower() for a in existing]
+    used_titles    = [a.get("title", "").lower()[:40] for a in existing]
 
-    return career_topics[:5]  # max 5 candidates, we pick the best one
+    for fallback in FALLBACK_TOPICS:
+        already_used = any(
+            fallback.lower()[:30] in t for t in used_topics + used_titles
+        )
+        if not already_used:
+            topics.append(fallback)
+        if len(topics) >= 8:
+            break
+
+    return topics[:8]
 
 def pick_best_topic(topics: list[str]) -> str:
-    """Pick the most GCC-relevant topic from the list."""
+    """
+    Priority:
+    1. Genuine trending topic that is career-relevant and GCC-specific
+    2. Trending topic that is career-relevant (any region)
+    3. Fallback topic not recently published
+    """
     gcc_kw = ["saudi", "uae", "qatar", "gcc", "gulf", "iqama", "neom",
-               "vision 2030", "riyadh", "dubai", "doha"]
+               "vision 2030", "riyadh", "dubai", "doha", "ksa"]
+
+    # First pass: trending + GCC-specific
     for topic in topics:
-        if any(kw in topic.lower() for kw in gcc_kw):
+        if is_career_relevant(topic) and any(kw in topic.lower() for kw in gcc_kw):
             return topic
-    return topics[0] if topics else FALLBACK_TOPICS[0]
+
+    # Second pass: any career-relevant trending topic
+    for topic in topics:
+        if is_career_relevant(topic):
+            return topic
+
+    # Final fallback
+    return FALLBACK_TOPICS[0]
 
 def load_existing_articles() -> list[dict]:
     if ARTICLES_FILE.exists():
         try:
-            return json.loads(ARTICLES_FILE.read_text())
+            return json.loads(ARTICLES_FILE.read_text(encoding="utf-8"))
         except Exception:
             return []
     return []
@@ -179,75 +218,77 @@ def call_claude(prompt: str, max_tokens: int = 2000) -> str:
     return r.json()["content"][0]["text"].strip()
 
 def write_article_en(topic: str) -> dict:
-    prompt = f"""You are a senior career writer for EzWorkers, a GCC job board serving professionals in Saudi Arabia, UAE, Qatar, Kuwait, Bahrain and Oman.
+    prompt = f"""You are a senior career writer for EzWorkers, a GCC job board.
 
-Write a helpful, informative career article on this topic:
-"{topic}"
+Write a helpful career article on: "{topic}"
 
-STRICT RULES — follow all of these without exception:
-- Tone must be positive, professional, and helpful to job seekers and employers
-- Never criticise, mention negatively, or imply anything negative about any GCC government, ministry, authority, royal family, public entity, or official policy
-- Never discuss politics, human rights, legal cases, controversies, or sensitive social topics
-- Focus ONLY on: career opportunities, skills, salary, job market, professional development, hiring trends
-- Write for GCC professionals — expats and nationals alike
-- Length: 500-700 words
-- Use clear headings and practical advice
+RULES:
+- Positive, professional tone only
+- Never criticise any GCC government, authority, or institution
+- Focus on career opportunities, skills, salary, hiring trends
+- 500-600 words, use clear headings
 
-Return ONLY valid JSON with these exact fields, no markdown, no backticks, start with {{:
-{{
-  "title": "article title (max 80 chars)",
-  "excerpt": "2-sentence summary for preview cards (max 160 chars)",
-  "body": "full article HTML using only <h2>, <p>, <ul>, <li> tags",
-  "tags": ["tag1", "tag2", "tag3"],
-  "reading_time": 4
-}}"""
+CRITICAL JSON RULES:
+- Return ONLY a raw JSON object
+- Start your response with {{ and end with }}
+- No markdown, no backticks, no explanation before or after
+- In the body field: use only these HTML tags: <h2> <p> <ul> <li>
+- Do NOT use any apostrophes or single quotes inside JSON string values — use the HTML entity &apos; instead
+- Do NOT use double quotes inside JSON string values — use &quot; instead
+- Every JSON string must be on a single line with no line breaks inside the value
+
+JSON format:
+{{"title": "article title max 70 chars", "excerpt": "one sentence summary max 140 chars", "body": "<h2>Heading</h2><p>Content here.</p>", "tags": ["tag1", "tag2", "tag3"], "reading_time": 4}}"""
 
     raw = call_claude(prompt, max_tokens=2000)
-    # Strip any accidental markdown
-    raw = raw.strip()
-    if raw.startswith("```"):
-        raw = raw.split("```")[1]
-        if raw.startswith("json"):
-            raw = raw[4:]
-    raw = raw.strip().rstrip("`").strip()
+    raw = clean_json_response(raw)
     return json.loads(raw)
 
 def translate_article_ar(article_en: dict) -> dict:
-    prompt = f"""Translate this career article from English to Arabic (Modern Standard Arabic / الفصحى).
+    # Send only title and excerpt for translation — body is too long and causes JSON parse failures
+    prompt = f"""Translate these two texts from English to Arabic (Modern Standard Arabic).
 
-The translation is for GCC professionals in Saudi Arabia, UAE, Qatar, and the Gulf region.
-
-STRICT RULES:
-- Maintain the same positive, professional tone
-- Never add any criticism of governments, authorities, or institutions
-- Keep all HTML tags exactly as they are (<h2>, <p>, <ul>, <li>)
-- Translate only the text content, not the HTML tags
-- The Arabic should read naturally, not like a word-for-word translation
+CRITICAL JSON RULES:
+- Return ONLY a raw JSON object
+- Start with {{ and end with }}
+- No markdown, no backticks, no explanation
+- Do NOT use apostrophes or single quotes inside JSON values
+- Do NOT use double quotes inside JSON string values
+- Keep each value on a single line
 
 English title: {article_en['title']}
 English excerpt: {article_en['excerpt']}
-English body:
-{article_en['body']}
 
-Return ONLY valid JSON, no markdown, no backticks, start with {{:
-{{
-  "title_ar": "Arabic title",
-  "excerpt_ar": "Arabic 2-sentence summary",
-  "body_ar": "Full Arabic article with same HTML structure"
-}}"""
+JSON format:
+{{"title_ar": "Arabic title here", "excerpt_ar": "Arabic excerpt here"}}"""
 
-    raw = call_claude(prompt, max_tokens=2500)
-    raw = raw.strip()
-    if raw.startswith("```"):
-        raw = raw.split("```")[1]
-        if raw.startswith("json"):
-            raw = raw[4:]
-    raw = raw.strip().rstrip("`").strip()
-    return json.loads(raw)
+    raw = call_claude(prompt, max_tokens=500)
+    raw = clean_json_response(raw)
+    result = json.loads(raw)
+
+    # Translate body separately with a simpler prompt
+    body_prompt = f"""Translate this HTML article body from English to Arabic. Keep all HTML tags unchanged. Return ONLY the translated HTML, nothing else, no JSON wrapper.
+
+{article_en['body']}"""
+
+    try:
+        body_ar = call_claude(body_prompt, max_tokens=2000)
+        # Remove any accidental markdown
+        if body_ar.startswith("```"):
+            body_ar = body_ar.split("```")[1]
+            if body_ar.startswith("html"):
+                body_ar = body_ar[4:]
+        body_ar = body_ar.strip().rstrip("`").strip()
+        result["body_ar"] = body_ar
+    except Exception as e:
+        print(f"  Body translation failed: {e} — using English body")
+        result["body_ar"] = article_en["body"]
+
+    return result
 
 def generate_slug(title: str) -> str:
     slug = title.lower()
-    for ch in " ,.'\"!?:;/\\()[]{}":
+    for ch in " ,.'\"!?:;/\\()[]{}—":
         slug = slug.replace(ch, "-")
     while "--" in slug:
         slug = slug.replace("--", "-")
@@ -256,24 +297,22 @@ def generate_slug(title: str) -> str:
 def main():
     print(f"\n=== EzWorkers Content Agent — {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC')} ===\n")
 
-    # Ensure content directory exists
     ARTICLES_FILE.parent.mkdir(parents=True, exist_ok=True)
 
-    # Step 1: Fetch trending topics
+    # Step 1: Fetch and select topic
     print("Fetching trending topics...")
     topics = fetch_trending_topics()
-    print(f"Topics found: {topics}")
+    print(f"Topic pool: {topics}")
 
     topic = pick_best_topic(topics)
     print(f"\nSelected topic: {topic}")
 
-    # Safety check
     if not is_safe_topic(topic):
-        print("Topic failed safety check. Switching to fallback.")
+        print("Topic failed safety check — using fallback")
         topic = FALLBACK_TOPICS[0]
 
     # Step 2: Write English article
-    print("\nWriting English article with Claude...")
+    print("\nWriting English article...")
     try:
         article_en = write_article_en(topic)
         print(f"  Title: {article_en['title']}")
@@ -281,38 +320,45 @@ def main():
         print(f"  English article failed: {e}")
         return
 
-    # Step 3: Translate to Arabic
+    # Step 3: Translate to Arabic (graceful fallback on failure)
     print("Translating to Arabic...")
     try:
         article_ar = translate_article_ar(article_en)
-        print(f"  Arabic title: {article_ar['title_ar']}")
+        print(f"  Arabic title: {article_ar.get('title_ar', 'N/A')}")
     except Exception as e:
-        print(f"  Arabic translation failed: {e}")
-        article_ar = {"title_ar": article_en["title"], "excerpt_ar": article_en["excerpt"], "body_ar": article_en["body"]}
+        print(f"  Arabic translation failed: {e} — using English as fallback")
+        article_ar = {
+            "title_ar":   article_en["title"],
+            "excerpt_ar": article_en["excerpt"],
+            "body_ar":    article_en["body"],
+        }
 
     # Step 4: Build article record
     now = datetime.now(timezone.utc).isoformat()
     article = {
-        "id":          hashlib.sha256(article_en["title"].encode()).hexdigest()[:12],
-        "slug":        generate_slug(article_en["title"]),
-        "title":       article_en["title"],
-        "title_ar":    article_ar["title_ar"],
-        "excerpt":     article_en["excerpt"],
-        "excerpt_ar":  article_ar["excerpt_ar"],
-        "body":        article_en["body"],
-        "body_ar":     article_ar["body_ar"],
-        "tags":        article_en.get("tags", []),
+        "id":           hashlib.sha256(article_en["title"].encode()).hexdigest()[:12],
+        "slug":         generate_slug(article_en["title"]),
+        "title":        article_en["title"],
+        "title_ar":     article_ar.get("title_ar", article_en["title"]),
+        "excerpt":      article_en["excerpt"],
+        "excerpt_ar":   article_ar.get("excerpt_ar", article_en["excerpt"]),
+        "body":         article_en["body"],
+        "body_ar":      article_ar.get("body_ar", article_en["body"]),
+        "tags":         article_en.get("tags", []),
         "reading_time": article_en.get("reading_time", 4),
         "published_at": now,
         "source_topic": topic,
     }
 
-    # Step 5: Load existing, prepend new article, save (keep last 50)
+    # Step 5: Save — prepend to existing, keep last 50
     existing = load_existing_articles()
     existing.insert(0, article)
     existing = existing[:50]
 
-    ARTICLES_FILE.write_text(json.dumps(existing, ensure_ascii=False, indent=2))
+    ARTICLES_FILE.write_text(
+        json.dumps(existing, ensure_ascii=False, indent=2),
+        encoding="utf-8"
+    )
     print(f"\n  Saved to {ARTICLES_FILE} ({len(existing)} total articles)")
     print(f"\n=== Done ===\n")
 
