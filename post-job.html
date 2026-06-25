@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Post a Job — EzWorkers</title>
+<meta name="description" content="Post a job on EzWorkers and reach thousands of GCC professionals.">
+<link rel="canonical" href="https://ezworkers.com/post-job.html">
+<link rel="stylesheet" href="css/style.css">
+<style>
+.post-hero{background:var(--bg);border-bottom:1px solid var(--border);padding:2.5rem 0}
+.post-hero h1{font-size:2rem;font-weight:700;color:var(--dark);margin-bottom:.4rem;letter-spacing:-.3px}
+.post-hero p{color:var(--muted);font-size:15px}
+.form-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);padding:2rem;margin:2rem 0;max-width:680px}
+.field{margin-bottom:1.25rem}
+.field label{display:block;font-size:13px;font-weight:500;color:var(--text);margin-bottom:.4rem}
+.field input,.field select,.field textarea{
+  width:100%;border:1px solid var(--border);border-radius:var(--radius);
+  padding:.65rem .85rem;font-size:14px;font-family:inherit;
+  color:var(--text);background:var(--white);outline:none;transition:border .15s}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--blue)}
+.field textarea{min-height:160px;resize:vertical;line-height:1.6}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.btn-submit{
+  background:var(--orange);color:var(--white);
+  font-size:15px;font-weight:600;padding:.8rem 2rem;
+  border-radius:var(--radius);border:none;cursor:pointer;
+  transition:background .15s;width:100%}
+.btn-submit:hover{background:#d96820}
+.btn-submit:disabled{background:#f4b98a;cursor:not-allowed}
+.result{margin-top:1rem;padding:.85rem 1rem;border-radius:var(--radius);font-size:13px;display:none}
+.result.success{background:#f0fdf4;border:1px solid #86efac;color:#15803d}
+.result.error{background:#fef2f2;border:1px solid #fca5a5;color:#dc2626}
+.why-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin:2rem 0 3rem}
+.why-card{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.25rem}
+.why-icon{font-size:24px;margin-bottom:.6rem}
+.why-title{font-size:14px;font-weight:600;color:var(--dark);margin-bottom:.25rem}
+.why-body{font-size:13px;color:var(--muted);line-height:1.5}
+@media(max-width:640px){.field-row{grid-template-columns:1fr}.why-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<div id="navbar-placeholder"></div>
+
+<div class="post-hero">
+  <div class="container">
+    <h1>Post a job</h1>
+    <p>Reach thousands of GCC professionals — free during our launch period</p>
+  </div>
+</div>
+
+<div class="container">
+  <div class="why-grid">
+    <div class="why-card">
+      <div class="why-icon">🎯</div>
+      <div class="why-title">GCC-focused audience</div>
+      <div class="why-body">Reach professionals actively looking for roles in Saudi Arabia, UAE, Qatar and across the Gulf.</div>
+    </div>
+    <div class="why-card">
+      <div class="why-icon">⚡</div>
+      <div class="why-title">Live in minutes</div>
+      <div class="why-body">Your job goes live immediately. No review delays, no waiting period.</div>
+    </div>
+    <div class="why-card">
+      <div class="why-icon">🆓</div>
+      <div class="why-title">Free to post</div>
+      <div class="why-body">No cost during our launch phase. Post as many jobs as you need.</div>
+    </div>
+  </div>
+
+  <div class="form-card">
+    <h2 style="font-size:17px;font-weight:600;margin-bottom:1.5rem;color:var(--dark)">Job details</h2>
+
+    <div class="field">
+      <label for="f-title">Job title *</label>
+      <input type="text" id="f-title" placeholder="e.g. Senior Procurement Manager">
+    </div>
+    <div class="field">
+      <label for="f-company">Company name *</label>
+      <input type="text" id="f-company" placeholder="Your company name">
+    </div>
+    <div class="field-row">
+      <div class="field">
+        <label for="f-country">Country *</label>
+        <select id="f-country">
+          <option value="">Select country</option>
+          <option>Saudi Arabia</option>
+          <option>UAE</option>
+          <option>Qatar</option>
+          <option>Kuwait</option>
+          <option>Bahrain</option>
+          <option>Oman</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="f-location">City / Location</label>
+        <input type="text" id="f-location" placeholder="e.g. Riyadh, Dubai">
+      </div>
+    </div>
+    <div class="field-row">
+      <div class="field">
+        <label for="f-sector">Sector *</label>
+        <select id="f-sector">
+          <option value="">Select sector</option>
+          <option>Procurement & Supply Chain</option>
+          <option>Construction & Infrastructure</option>
+          <option>Engineering & Technical</option>
+          <option>Oil & Gas / Energy</option>
+          <option>Finance & Banking</option>
+          <option>IT & Technology</option>
+          <option>HR & Admin</option>
+          <option>Healthcare</option>
+          <option>General</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="f-jobtype">Job type *</label>
+        <select id="f-jobtype">
+          <option value="">Select type</option>
+          <option>Full-time</option>
+          <option>Part-time</option>
+          <option>Contract</option>
+          <option>Remote</option>
+          <option>Freelance</option>
+        </select>
+      </div>
+    </div>
+    <div class="field">
+      <label for="f-salary">Salary (optional)</label>
+      <input type="text" id="f-salary" placeholder="e.g. SAR 25,000 / month or Competitive">
+    </div>
+    <div class="field">
+      <label for="f-description">Job description *</label>
+      <textarea id="f-description" placeholder="Describe the role, responsibilities, requirements, and what you're looking for..."></textarea>
+    </div>
+    <div class="field">
+      <label for="f-apply">How to apply * (URL or email)</label>
+      <input type="text" id="f-apply" placeholder="https://yourcompany.com/apply or hr@company.com">
+    </div>
+    <div class="field">
+      <label for="f-contact">Your contact email (not shown publicly)</label>
+      <input type="email" id="f-contact" placeholder="For our records only">
+    </div>
+
+    <button class="btn-submit" id="submit-btn" onclick="submitJob()">Post this job — free</button>
+    <div class="result" id="form-result"></div>
+  </div>
+</div>
+
+<div id="footer-placeholder"></div>
+
+<script src="js/main.js"></script>
+<script>
+// Replace with your Cloudflare Worker URL for the paste agent
+// We reuse the same worker — just call it with pre-structured data
+const WORKER_URL = 'https://ezworkers-paste-agent.ashoukt2001.workers.dev';
+const ADMIN_PIN  = 'EZW2019'; // Set a separate PIN in Worker for employer posts, or reuse admin PIN
+
+document.getElementById('navbar-placeholder').innerHTML = buildNavbar('');
+document.getElementById('footer-placeholder').innerHTML = buildFooter();
+
+async function submitJob() {
+  const title       = document.getElementById('f-title').value.trim();
+  const company     = document.getElementById('f-company').value.trim();
+  const country     = document.getElementById('f-country').value;
+  const location    = document.getElementById('f-location').value.trim();
+  const sector      = document.getElementById('f-sector').value;
+  const jobtype     = document.getElementById('f-jobtype').value;
+  const salary      = document.getElementById('f-salary').value.trim();
+  const description = document.getElementById('f-description').value.trim();
+  const applyUrl    = document.getElementById('f-apply').value.trim();
+
+  const res = document.getElementById('form-result');
+
+  if (!title || !company || !country || !sector || !jobtype || !description || !applyUrl) {
+    res.style.display = 'block';
+    res.className = 'result error';
+    res.textContent = 'Please fill in all required fields marked with *.';
+    return;
+  }
+
+  const btn = document.getElementById('submit-btn');
+  btn.disabled = true;
+  btn.textContent = 'Posting your job...';
+  res.style.display = 'none';
+
+  // Build a structured text for the paste agent to process
+  const pasteText = `Job Title: ${title}
+Company: ${company}
+Country: ${country}
+Location: ${location}
+Sector: ${sector}
+Job Type: ${jobtype}
+Salary: ${salary}
+Apply URL: ${applyUrl}
+Description:
+${description}`;
+
+  try {
+    const r = await fetch(WORKER_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ pin: ADMIN_PIN, text: pasteText }),
+    });
+    const data = await r.json();
+    if (!r.ok || !data.success) {
+      throw new Error(data.error || 'Submission failed');
+    }
+    res.style.display = 'block';
+    res.className = 'result success';
+    res.textContent = `Your job "${title}" has been posted successfully. It is now live on EzWorkers.`;
+    btn.textContent = 'Job posted!';
+    // Clear form
+    ['f-title','f-company','f-location','f-salary','f-description','f-apply','f-contact'].forEach(id => {
+      document.getElementById(id).value = '';
+    });
+    ['f-country','f-sector','f-jobtype'].forEach(id => {
+      document.getElementById(id).selectedIndex = 0;
+    });
+  } catch (e) {
+    res.style.display = 'block';
+    res.className = 'result error';
+    res.textContent = `Error: ${e.message}`;
+    btn.disabled = false;
+    btn.textContent = 'Post this job — free';
+  }
+}
+</script>
+</body>
+</html>
