@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Job Details — EzWorkers</title>
+<meta name="description" content="View job details on EzWorkers — GCC's job search engine.">
+<link rel="canonical" href="https://ezworkers.com/job.html">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div id="navbar-placeholder"></div>
+
+<div id="job-content">
+  <div class="container" style="padding-top:3rem;padding-bottom:3rem;text-align:center">
+    <div class="spinner" style="margin:0 auto 1rem"></div>
+    <p style="color:var(--muted)">Loading job...</p>
+  </div>
+</div>
+
+<div id="footer-placeholder"></div>
+
+<script src="js/main.js"></script>
+<script>
+document.getElementById('navbar-placeholder').innerHTML = buildNavbar('');
+document.getElementById('footer-placeholder').innerHTML = buildFooter();
+
+const jobId = new URLSearchParams(location.search).get('id');
+
+async function loadJob() {
+  const content = document.getElementById('job-content');
+
+  if (!jobId) {
+    content.innerHTML = `<div class="container" style="padding:3rem 0;text-align:center">
+      <h2>Job not found</h2><p style="color:var(--muted);margin-top:.5rem">No job ID provided.</p>
+      <a href="index.html" style="color:var(--blue);display:block;margin-top:1rem">← Back to jobs</a>
+    </div>`;
+    return;
+  }
+
+  try {
+    const job = await getJobById(jobId);
+
+    if (!job) {
+      content.innerHTML = `<div class="container" style="padding:3rem 0;text-align:center">
+        <h2>Job not found</h2>
+        <a href="index.html" style="color:var(--blue);display:block;margin-top:1rem">← Back to jobs</a>
+      </div>`;
+      return;
+    }
+
+    // Update page title and meta
+    document.title = `${job.title} ${job.company ? '— ' + job.company : ''} | EzWorkers`;
+    document.querySelector('meta[name="description"]').setAttribute('content',
+      `${job.title} at ${job.company || 'a company'} in ${job.location || job.country || 'GCC'}. Apply on EzWorkers.`
+    );
+
+    // Add JSON-LD for job posting SEO
+    const schema = {
+      "@context": "https://schema.org",
+      "@type": "JobPosting",
+      "title": job.title,
+      "description": job.description || '',
+      "datePosted": job.posted_at,
+      "jobLocation": {
+        "@type": "Place",
+        "address": { "@type": "PostalAddress", "addressCountry": job.country || '' }
+      },
+      "hiringOrganization": {
+        "@type": "Organization",
+        "name": job.company || 'Employer'
+      },
+      "employmentType": job.job_type || 'FULL_TIME',
+    };
+    const schemaEl = document.createElement('script');
+    schemaEl.type = 'application/ld+json';
+    schemaEl.textContent = JSON.stringify(schema);
+    document.head.appendChild(schemaEl);
+
+    const applyHref = applyUrl(job.apply_url);
+    const isEmail   = job.apply_url && job.apply_url.includes('@');
+
+    content.innerHTML = `
+      <div class="job-detail-header">
+        <div class="container">
+          <a href="index.html" class="back-link" data-i18n="back">← Back to jobs</a>
+          <div style="display:flex;align-items:flex-start;gap:1.25rem">
+            <div class="job-logo" style="width:64px;height:64px;font-size:24px;border-radius:14px">
+              ${companyInitial(job.company)}
+            </div>
+            <div style="flex:1">
+              <div class="detail-title">${job.title || 'Job opportunity'}</div>
+              <div class="detail-company">${job.company || 'Company not specified'}</div>
+              <div class="detail-tags">
+                ${job.country  ? `<span class="tag country">${job.country}</span>`   : ''}
+                ${job.location ? `<span class="tag">${job.location}</span>`           : ''}
+                ${job.sector   ? `<span class="tag sector">${job.sector}</span>`     : ''}
+                ${job.job_type ? `<span class="tag">${job.job_type}</span>`          : ''}
+                ${job.salary   ? `<span class="tag" style="font-weight:600">${job.salary}</span>` : ''}
+                ${isNew(job.posted_at) ? `<span class="tag new">${t('new_badge')}</span>` : ''}
+              </div>
+              ${applyHref !== '#' ? `
+                <a href="${applyHref}" target="${isEmail?'_self':'_blank'}" rel="noopener" class="btn-apply btn-apply-orange">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                  <span data-i18n="apply">${t('apply')}</span>
+                </a>
+              ` : `<span style="font-size:13px;color:var(--muted)">Contact employer directly</span>`}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="container">
+        <div style="display:grid;grid-template-columns:1fr 300px;gap:3rem;align-items:start">
+          <div class="job-description">
+            <h2>About this role</h2>
+            ${formatDescription(job.description)}
+          </div>
+          <div style="padding-top:2.5rem">
+            <div class="card" style="background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.25rem">
+              <h4 style="font-size:13px;font-weight:600;margin-bottom:1rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)">Job details</h4>
+              ${rowDetail('Location', job.location || job.country)}
+              ${rowDetail('Country', job.country)}
+              ${rowDetail('Job type', job.job_type)}
+              ${rowDetail('Sector', job.sector)}
+              ${rowDetail('Salary', job.salary)}
+              ${rowDetail('Posted', new Date(job.posted_at).toLocaleDateString('en-GB', {day:'numeric',month:'long',year:'numeric'}))}
+              ${rowDetail('Source', job.source ? job.source.replace(/_/g,' ') : '')}
+            </div>
+
+            ${applyHref !== '#' ? `
+              <a href="${applyHref}" target="${isEmail?'_self':'_blank'}" rel="noopener"
+                 class="btn-apply" style="display:flex;margin-top:1rem;justify-content:center">
+                <span data-i18n="apply">${t('apply')}</span>
+              </a>
+            ` : ''}
+
+            <a href="index.html" style="display:block;text-align:center;margin-top:1rem;font-size:13px;color:var(--muted)">
+              ← Browse all jobs
+            </a>
+          </div>
+        </div>
+      </div>`;
+
+    // Re-apply translations to newly inserted content
+    applyTranslations();
+
+  } catch (e) {
+    content.innerHTML = `<div class="container" style="padding:3rem 0;text-align:center">
+      <h2>Error loading job</h2>
+      <p style="color:var(--muted);margin-top:.5rem">${e.message}</p>
+      <a href="index.html" style="color:var(--blue);display:block;margin-top:1rem">← Back to jobs</a>
+    </div>`;
+  }
+}
+
+function rowDetail(label, value) {
+  if (!value) return '';
+  return `<div style="display:flex;justify-content:space-between;padding:.5rem 0;border-bottom:1px solid var(--border);font-size:13px">
+    <span style="color:var(--muted)">${label}</span>
+    <span style="font-weight:500;color:var(--text);text-align:right;max-width:60%">${value}</span>
+  </div>`;
+}
+
+loadJob();
+</script>
+</body>
+</html>
