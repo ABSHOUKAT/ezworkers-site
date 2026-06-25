@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Article — EzWorkers</title>
+<meta name="description" content="Career insights for GCC professionals on EzWorkers.">
+<link rel="stylesheet" href="css/style.css">
+<style>
+.article-header{background:var(--bg);border-bottom:1px solid var(--border);padding:2.5rem 0}
+.article-content{max-width:720px;padding:2.5rem 0}
+.article-content h2{font-size:19px;font-weight:600;color:var(--dark);margin:2rem 0 .75rem}
+.article-content p{font-size:15px;line-height:1.85;color:var(--text);margin-bottom:1rem}
+.article-content ul{padding-left:1.5rem;margin-bottom:1rem}
+.article-content li{font-size:15px;line-height:1.75;color:var(--text);margin-bottom:.4rem}
+.article-content strong{color:var(--dark)}
+[dir="rtl"] .article-content ul{padding-left:0;padding-right:1.5rem}
+.lang-toggle-article{display:inline-flex;align-items:center;gap:.5rem;margin-bottom:1.5rem}
+.lang-btn{font-size:12px;font-weight:500;padding:.25rem .75rem;border-radius:20px;border:1px solid var(--border);background:var(--white);color:var(--muted);cursor:pointer;transition:all .15s}
+.lang-btn.active{background:var(--blue);color:#fff;border-color:var(--blue)}
+</style>
+</head>
+<body>
+
+<div id="navbar-placeholder"></div>
+<div id="article-content">
+  <div class="container" style="padding:3rem 0;text-align:center">
+    <div class="spinner" style="margin:0 auto 1rem"></div>
+    <p style="color:var(--muted)">Loading article...</p>
+  </div>
+</div>
+<div id="footer-placeholder"></div>
+
+<script src="js/main.js"></script>
+<script>
+const ARTICLES_URL = 'https://raw.githubusercontent.com/ABSHOUKAT/ezworkers-site/main/content/articles.json';
+const articleId    = new URLSearchParams(location.search).get('id');
+
+document.getElementById('navbar-placeholder').innerHTML = buildNavbar('blog');
+document.getElementById('footer-placeholder').innerHTML = buildFooter();
+
+let currentArticle = null;
+let articleLang    = currentLang;
+
+async function loadArticle() {
+  const container = document.getElementById('article-content');
+  try {
+    const r = await fetch(ARTICLES_URL + '?t=' + Date.now());
+    const articles = await r.json();
+    const article = articles.find(a => a.id === articleId || a.slug === articleId);
+
+    if (!article) {
+      container.innerHTML = `<div class="container" style="padding:3rem 0;text-align:center">
+        <h2>Article not found</h2>
+        <a href="blog.html" style="color:var(--blue);display:block;margin-top:1rem">← Back to articles</a>
+      </div>`;
+      return;
+    }
+
+    currentArticle = article;
+    renderArticle(article, articleLang);
+
+  } catch (e) {
+    container.innerHTML = `<div class="container" style="padding:3rem 0;text-align:center">
+      <h2>Could not load article</h2>
+      <a href="blog.html" style="color:var(--blue);display:block;margin-top:1rem">← Back to articles</a>
+    </div>`;
+  }
+}
+
+function renderArticle(article, lang) {
+  const isAr    = lang === 'ar';
+  const title   = isAr && article.title_ar   ? article.title_ar   : article.title;
+  const body    = isAr && article.body_ar    ? article.body_ar    : article.body;
+  const date    = new Date(article.published_at).toLocaleDateString(
+    isAr ? 'ar-SA' : 'en-GB',
+    { day: 'numeric', month: 'long', year: 'numeric' }
+  );
+  const dir = isAr ? 'rtl' : 'ltr';
+
+  // Update page meta
+  document.title = `${title} — EzWorkers`;
+  document.querySelector('meta[name="description"]').setAttribute('content', article.excerpt || '');
+
+  const tags = (article.tags || []).slice(0, 4).map(t =>
+    `<span class="tag">${t}</span>`
+  ).join('');
+
+  document.getElementById('article-content').innerHTML = `
+    <div class="article-header">
+      <div class="container">
+        <a href="blog.html" class="back-link" style="margin-bottom:1.25rem;display:inline-flex;align-items:center;gap:.35rem;font-size:13px;color:var(--muted)">
+          ← ${isAr ? 'العودة إلى المقالات' : 'Back to articles'}
+        </a>
+
+        <div class="lang-toggle-article">
+          <button class="lang-btn ${!isAr?'active':''}" onclick="switchArticleLang('en')">English</button>
+          <button class="lang-btn ${isAr?'active':''}"  onclick="switchArticleLang('ar')">عربي</button>
+        </div>
+
+        <div style="max-width:720px">
+          <div class="article-tags" style="margin-bottom:.75rem">${tags}</div>
+          <h1 style="font-size:clamp(1.5rem,3vw,2.1rem);font-weight:700;color:var(--dark);line-height:1.2;margin-bottom:.75rem;letter-spacing:-.3px" dir="${dir}">${title}</h1>
+          <div style="font-size:13px;color:var(--muted);display:flex;gap:1rem">
+            <span>${date}</span>
+            <span>${article.reading_time || 4} min read</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="container">
+      <div class="article-content" dir="${dir}">${body}</div>
+      <div style="padding:2rem 0 3rem;border-top:1px solid var(--border);max-width:720px">
+        <p style="font-size:14px;color:var(--muted);margin-bottom:1rem">
+          ${isAr ? 'ابحث عن وظيفتك القادمة في الخليج' : 'Find your next GCC role on EzWorkers'}
+        </p>
+        <a href="index.html" class="btn-apply btn-apply-orange" style="display:inline-flex">
+          ${isAr ? 'تصفح الوظائف' : 'Browse jobs'}
+        </a>
+      </div>
+    </div>`;
+}
+
+function switchArticleLang(lang) {
+  articleLang = lang;
+  if (currentArticle) renderArticle(currentArticle, lang);
+}
+
+loadArticle();
+</script>
+</body>
+</html>
