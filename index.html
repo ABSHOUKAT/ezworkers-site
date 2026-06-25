@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EzWorkers — GCC Jobs | وظائف الخليج</title>
+<meta name="description" content="Find jobs in Saudi Arabia, UAE, Qatar, Kuwait, Bahrain and Oman. Thousands of GCC jobs in construction, procurement, engineering, oil & gas — updated every 6 hours.">
+<meta name="keywords" content="GCC jobs, Saudi Arabia jobs, UAE jobs, Qatar jobs, expat jobs, procurement jobs Saudi Arabia, construction jobs Gulf">
+<meta property="og:title" content="EzWorkers — GCC Jobs">
+<meta property="og:description" content="Find your next role across the Gulf. Live jobs updated every 6 hours.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://ezworkers.com">
+<link rel="canonical" href="https://ezworkers.com">
+<link rel="stylesheet" href="css/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "EzWorkers",
+  "url": "https://ezworkers.com",
+  "description": "GCC job board for professionals in construction, procurement, engineering and energy",
+  "potentialAction": {
+    "@type": "SearchAction",
+    "target": "https://ezworkers.com/index.html?q={search_term_string}",
+    "query-input": "required name=search_term_string"
+  }
+}
+</script>
+</head>
+<body>
+
+<div id="navbar-placeholder"></div>
+
+<!-- Countries ticker -->
+<div class="countries-bar">
+  <div class="countries-scroll" id="countries-ticker">
+    <span class="country-item" onclick="filterCountry('Saudi Arabia')">🇸🇦 Saudi Arabia</span>
+    <span class="country-item" onclick="filterCountry('UAE')">🇦🇪 UAE</span>
+    <span class="country-item" onclick="filterCountry('Qatar')">🇶🇦 Qatar</span>
+    <span class="country-item" onclick="filterCountry('Kuwait')">🇰🇼 Kuwait</span>
+    <span class="country-item" onclick="filterCountry('Bahrain')">🇧🇭 Bahrain</span>
+    <span class="country-item" onclick="filterCountry('Oman')">🇴🇲 Oman</span>
+    <span class="country-item" onclick="filterCountry('Saudi Arabia')">🇸🇦 Saudi Arabia</span>
+    <span class="country-item" onclick="filterCountry('UAE')">🇦🇪 UAE</span>
+    <span class="country-item" onclick="filterCountry('Qatar')">🇶🇦 Qatar</span>
+    <span class="country-item" onclick="filterCountry('Kuwait')">🇰🇼 Kuwait</span>
+    <span class="country-item" onclick="filterCountry('Bahrain')">🇧🇭 Bahrain</span>
+    <span class="country-item" onclick="filterCountry('Oman')">🇴🇲 Oman</span>
+  </div>
+</div>
+
+<!-- Hero -->
+<section class="hero">
+  <div class="container">
+    <p class="hero-eyebrow" data-i18n="hero_eyebrow"></p>
+    <h1>
+      <span data-i18n="hero_h1_1"></span><br>
+      <em data-i18n="hero_h1_2"></em>
+    </h1>
+    <p class="hero-sub" data-i18n="hero_sub"></p>
+
+    <div class="hero-stats">
+      <div>
+        <div class="stat-num" id="stat-jobs">—</div>
+        <div class="stat-label" data-i18n="stat_jobs"></div>
+      </div>
+      <div>
+        <div class="stat-num">6</div>
+        <div class="stat-label" data-i18n="stat_countries"></div>
+      </div>
+      <div>
+        <div class="stat-num">12+</div>
+        <div class="stat-label" data-i18n="stat_sectors"></div>
+      </div>
+    </div>
+
+    <div class="search-box">
+      <input type="text" id="search-input" data-i18n="search_placeholder" data-i18n-attr="placeholder"
+             placeholder="Job title, company, or keyword"
+             onkeydown="if(event.key==='Enter') doSearch()">
+      <select class="search-select" id="country-select-hero">
+        <option value="all">All countries</option>
+        <option value="Saudi Arabia">🇸🇦 Saudi Arabia</option>
+        <option value="UAE">🇦🇪 UAE</option>
+        <option value="Qatar">🇶🇦 Qatar</option>
+        <option value="Kuwait">🇰🇼 Kuwait</option>
+        <option value="Bahrain">🇧🇭 Bahrain</option>
+        <option value="Oman">🇴🇲 Oman</option>
+      </select>
+      <button class="btn-search" onclick="doSearch()" data-i18n="search_btn"></button>
+    </div>
+  </div>
+</section>
+
+<!-- Filter bar -->
+<div class="filter-bar">
+  <div class="container">
+    <div class="filter-inner">
+      <span class="filter-label" data-i18n="filters"></span>
+      <button class="filter-pill active" onclick="setSector('all', this)">All</button>
+      <button class="filter-pill" onclick="setSector('Procurement & Supply Chain', this)">Procurement</button>
+      <button class="filter-pill" onclick="setSector('Construction & Infrastructure', this)">Construction</button>
+      <button class="filter-pill" onclick="setSector('Oil & Gas / Energy', this)">Oil & Gas</button>
+      <button class="filter-pill" onclick="setSector('Engineering & Technical', this)">Engineering</button>
+      <button class="filter-pill" onclick="setSector('IT & Technology', this)">IT</button>
+      <button class="filter-pill" onclick="setSector('Finance & Banking', this)">Finance</button>
+      <select class="filter-select" id="jobtype-select" onchange="setJobType(this.value)">
+        <option value="all">All types</option>
+        <option value="Full-time">Full-time</option>
+        <option value="Remote">Remote</option>
+        <option value="Contract">Contract</option>
+        <option value="Part-time">Part-time</option>
+      </select>
+      <select class="filter-select" id="country-select-filter" onchange="setCountry(this.value)" style="margin-left:auto">
+        <option value="all">All countries</option>
+        <option value="Saudi Arabia">🇸🇦 Saudi Arabia</option>
+        <option value="UAE">🇦🇪 UAE</option>
+        <option value="Qatar">🇶🇦 Qatar</option>
+        <option value="Kuwait">🇰🇼 Kuwait</option>
+        <option value="Bahrain">🇧🇭 Bahrain</option>
+        <option value="Oman">🇴🇲 Oman</option>
+      </select>
+    </div>
+  </div>
+</div>
+
+<!-- Jobs section -->
+<div class="container">
+  <div class="jobs-header">
+    <div class="jobs-count"><strong id="jobs-count-num">—</strong> <span data-i18n="results_label"></span></div>
+    <select class="sort-select" onchange="setSort(this.value)">
+      <option value="newest" data-i18n="sort_newest">Newest first</option>
+      <option value="oldest" data-i18n="sort_oldest">Oldest first</option>
+    </select>
+  </div>
+
+  <div id="jobs-list">
+    <div class="loading-grid">
+      <div class="spinner"></div>
+      <p data-i18n="loading">Finding jobs for you...</p>
+    </div>
+  </div>
+
+  <div class="pagination" id="pagination"></div>
+</div>
+
+<div id="footer-placeholder"></div>
+
+<script src="js/main.js"></script>
+<script>
+// State
+let state = {
+  search:  new URLSearchParams(location.search).get('q') || '',
+  country: new URLSearchParams(location.search).get('country') || 'all',
+  sector:  'all',
+  jobType: 'all',
+  page:    1,
+  sort:    'newest',
+  total:   0,
+};
+
+// Inject navbar and footer
+document.getElementById('navbar-placeholder').innerHTML = buildNavbar('home');
+document.getElementById('footer-placeholder').innerHTML = buildFooter();
+
+// Load live job count for hero stat
+countJobs().then(n => {
+  document.getElementById('stat-jobs').textContent = n.toLocaleString();
+});
+
+// Apply URL params
+if (state.search) document.getElementById('search-input').value = state.search;
+if (state.country !== 'all') {
+  document.getElementById('country-select-hero').value = state.country;
+  document.getElementById('country-select-filter').value = state.country;
+}
+
+function doSearch() {
+  state.search  = document.getElementById('search-input').value.trim();
+  state.country = document.getElementById('country-select-hero').value;
+  state.page    = 1;
+  loadJobs();
+}
+
+function setSector(sector, btn) {
+  state.sector = sector;
+  state.page   = 1;
+  document.querySelectorAll('.filter-pill').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  loadJobs();
+}
+
+function setJobType(val) { state.jobType = val; state.page = 1; loadJobs(); }
+function setCountry(val) { state.country = val; state.page = 1; loadJobs(); }
+function setSort(val)    { state.sort    = val; state.page = 1; loadJobs(); }
+
+function filterCountry(c) {
+  state.country = c;
+  state.page    = 1;
+  document.getElementById('country-select-filter').value = c;
+  loadJobs();
+  document.querySelector('.jobs-header').scrollIntoView({ behavior: 'smooth' });
+}
+
+async function loadJobs() {
+  const list = document.getElementById('jobs-list');
+  list.innerHTML = `<div class="loading-grid"><div class="spinner"></div><p>${t('loading')}</p></div>`;
+
+  try {
+    const { jobs, total } = await queryJobs(state);
+    state.total = total;
+    document.getElementById('jobs-count-num').textContent = total.toLocaleString();
+
+    if (!jobs.length) {
+      list.innerHTML = `
+        <div class="empty-state">
+          <h3>${t('no_jobs')}</h3>
+          <p>${t('no_jobs_sub')}</p>
+        </div>`;
+      document.getElementById('pagination').innerHTML = '';
+      return;
+    }
+
+    list.innerHTML = jobs.map(jobCardHTML).join('');
+    renderPagination(total);
+  } catch (e) {
+    list.innerHTML = `<div class="empty-state"><h3>Something went wrong</h3><p>${e.message}</p></div>`;
+  }
+}
+
+function renderPagination(total) {
+  const pages = Math.ceil(total / PAGE_SIZE);
+  if (pages <= 1) { document.getElementById('pagination').innerHTML = ''; return; }
+
+  let html = '';
+  // Prev
+  html += `<button class="page-btn" onclick="goPage(${state.page-1})" ${state.page===1?'disabled':''}>‹</button>`;
+  // Page numbers
+  for (let p = 1; p <= pages; p++) {
+    if (p === 1 || p === pages || Math.abs(p - state.page) <= 2) {
+      html += `<button class="page-btn ${p===state.page?'active':''}" onclick="goPage(${p})">${p}</button>`;
+    } else if (Math.abs(p - state.page) === 3) {
+      html += `<span style="padding:0 .25rem;color:var(--muted)">…</span>`;
+    }
+  }
+  // Next
+  html += `<button class="page-btn" onclick="goPage(${state.page+1})" ${state.page===pages?'disabled':''}>›</button>`;
+  document.getElementById('pagination').innerHTML = html;
+}
+
+function goPage(p) {
+  state.page = p;
+  loadJobs();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// Initial load
+loadJobs();
+</script>
+</body>
+</html>
