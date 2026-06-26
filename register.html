@@ -178,9 +178,10 @@ document.getElementById('btn-register').addEventListener('click', async function
       }));
 
       window.location.href = selectedRole === 'employer' ? 'employer-dashboard.html' : 'dashboard.html';
-   } else {
-      showResult('success', 'Account created! Redirecting to sign in...');
-      setTimeout(() => { window.location.href = 'login.html'; }, 1500);
+    } else {
+      showResult('success', 'Account created! Check ' + email + ' for a confirmation link, then sign in.');
+      btn.textContent = 'Account created';
+      btn.disabled = false;
     }
   } catch(e) {
     showResult('error', e.message);
