@@ -5,101 +5,136 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>My Dashboard — EzWorkers</title>
 <meta name="robots" content="noindex">
-<link rel="stylesheet" href="css/style.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
 <style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',sans-serif;font-size:15px;color:#1e293b;background:#fff;-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+/* Nav */
+.nav{background:#fff;border-bottom:1px solid #e2e8f0;position:sticky;top:0;z-index:100}
+.nav-inner{max-width:1160px;margin:0 auto;padding:0 1.25rem;display:flex;align-items:center;justify-content:space-between;height:64px}
+.logo{display:flex;align-items:center;gap:.6rem;font-size:20px;font-weight:700;color:#0f172a}
+.logo-mark{width:36px;height:36px;background:#1A6FC4;border-radius:9px;display:flex;align-items:center;justify-content:center}
+.logo span{color:#F47B2B}
+.nav-right{display:flex;gap:.75rem;align-items:center}
+.btn-outline{font-size:13px;color:#64748b;background:none;border:1px solid #e2e8f0;border-radius:8px;padding:.35rem .75rem;cursor:pointer}
+/* Layout */
+.wrap{max-width:1160px;margin:0 auto;padding:0 1.25rem}
 .dash-layout{display:grid;grid-template-columns:240px 1fr;gap:2rem;padding:2rem 0 4rem;min-height:80vh}
-.dash-sidebar{position:sticky;top:80px;align-self:start}
+/* Sidebar */
+.sidebar{position:sticky;top:80px;align-self:start}
+.sidebar-user{display:flex;align-items:center;gap:.75rem;padding:.75rem 0 1.25rem;border-bottom:1px solid #e2e8f0;margin-bottom:1rem}
+.avatar{width:40px;height:40px;border-radius:50%;background:#1A6FC4;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:16px;flex-shrink:0}
+.sidebar-name{font-size:14px;font-weight:600;color:#0f172a}
+.sidebar-role{font-size:12px;color:#64748b}
 .dash-nav{list-style:none}
 .dash-nav li{margin-bottom:.25rem}
-.dash-nav a{display:flex;align-items:center;gap:.6rem;padding:.55rem .75rem;border-radius:8px;font-size:14px;font-weight:500;color:var(--muted);transition:all .15s;text-decoration:none}
-.dash-nav a:hover,.dash-nav a.active{color:var(--blue);background:var(--blue-light)}
-.dash-nav .nav-icon{font-size:16px}
+.dash-nav button{width:100%;text-align:left;display:flex;align-items:center;gap:.6rem;padding:.55rem .75rem;border-radius:8px;font-size:14px;font-weight:500;color:#64748b;background:none;border:none;cursor:pointer;transition:all .15s;font-family:inherit}
+.dash-nav button:hover,.dash-nav button.active{color:#1A6FC4;background:#E6F1FB}
+.sidebar-footer{margin-top:1.5rem;padding-top:1rem;border-top:1px solid #e2e8f0}
+.sidebar-footer a{font-size:13px;color:#64748b}
+/* Sections */
 .dash-section{display:none}
 .dash-section.active{display:block}
-.section-title{font-size:18px;font-weight:700;color:var(--dark);margin-bottom:1.25rem;letter-spacing:-.2px}
-.profile-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.sec-title{font-size:18px;font-weight:700;color:#0f172a;margin-bottom:1.25rem;letter-spacing:-.2px}
+/* Form */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
 .field{margin-bottom:1rem}
-.field label{display:block;font-size:13px;font-weight:500;color:var(--text);margin-bottom:.35rem}
-.field input,.field select,.field textarea{width:100%;border:1px solid var(--border);border-radius:var(--radius);padding:.6rem .8rem;font-size:14px;font-family:inherit;color:var(--text);outline:none;transition:border .15s;background:var(--white)}
-.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--blue)}
-.field textarea{min-height:90px;resize:vertical}
-.btn-save{background:var(--blue);color:#fff;border:none;border-radius:var(--radius);padding:.6rem 1.5rem;font-size:14px;font-weight:600;cursor:pointer;transition:background .15s}
-.btn-save:hover{background:var(--blue-dark)}
-.btn-save:disabled{background:#93c5fd}
-.result-msg{font-size:13px;margin-top:.75rem;padding:.6rem .85rem;border-radius:8px;display:none}
-.result-msg.success{background:#f0fdf4;color:#15803d;border:1px solid #86efac}
-.result-msg.error{background:#fef2f2;color:#dc2626;border:1px solid #fca5a5}
-.app-card{border:1px solid var(--border);border-radius:var(--radius-lg);padding:1rem 1.25rem;margin-bottom:.75rem;display:grid;grid-template-columns:1fr auto;gap:1rem;align-items:center}
-.app-title{font-size:14px;font-weight:600;color:var(--dark);margin-bottom:.2rem}
-.app-company{font-size:13px;color:var(--muted)}
-.app-meta{font-size:12px;color:var(--muted);margin-top:.35rem}
-.status-badge{font-size:11px;font-weight:500;padding:3px 10px;border-radius:20px}
-.status-applied{background:#E6F1FB;color:#0C447C}
-.status-viewed{background:#FEF0E6;color:#9B4B10}
-.status-shortlisted{background:#EAF3DE;color:#27500A}
-.status-rejected{background:#FCEBEB;color:#791F1F}
-.saved-card{display:grid;grid-template-columns:auto 1fr auto;gap:.75rem;align-items:center;padding:.85rem 0;border-bottom:1px solid var(--border)}
+.field label{display:block;font-size:13px;font-weight:500;color:#1e293b;margin-bottom:.35rem}
+.field input,.field select,.field textarea{width:100%;border:1px solid #e2e8f0;border-radius:10px;padding:.6rem .8rem;font-size:14px;font-family:inherit;color:#1e293b;outline:none;transition:border .15s;background:#fff}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:#1A6FC4}
+.field textarea{min-height:90px;resize:vertical;line-height:1.5}
+.field select[multiple]{height:120px}
+.btn-blue{background:#1A6FC4;color:#fff;border:none;border-radius:10px;padding:.6rem 1.5rem;font-size:14px;font-weight:600;cursor:pointer;transition:background .15s;font-family:inherit}
+.btn-blue:hover{background:#155fa0}
+.btn-blue:disabled{background:#93c5fd;cursor:not-allowed}
+.msg{font-size:13px;margin-top:.75rem;padding:.6rem .85rem;border-radius:8px;display:none}
+.msg.ok{background:#f0fdf4;color:#15803d;border:1px solid #86efac}
+.msg.err{background:#fef2f2;color:#dc2626;border:1px solid #fca5a5}
+/* Cards */
+.app-card{border:1px solid #e2e8f0;border-radius:12px;padding:1rem 1.25rem;margin-bottom:.75rem;display:flex;align-items:center;justify-content:space-between;gap:1rem}
+.app-info .job-title{font-size:14px;font-weight:600;color:#0f172a;margin-bottom:.2rem}
+.app-info .job-sub{font-size:13px;color:#64748b}
+.app-info .job-meta{font-size:12px;color:#94a3b8;margin-top:.3rem}
+.status{font-size:11px;font-weight:500;padding:3px 10px;border-radius:20px;flex-shrink:0}
+.s-applied{background:#E6F1FB;color:#0C447C}
+.s-viewed{background:#FEF0E6;color:#9B4B10}
+.s-shortlisted{background:#EAF3DE;color:#27500A}
+.s-rejected{background:#FCEBEB;color:#791F1F}
+.saved-card{display:grid;grid-template-columns:44px 1fr auto;gap:.75rem;align-items:center;padding:.85rem 0;border-bottom:1px solid #f1f5f9}
 .saved-card:last-child{border-bottom:none}
-.alert-card{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:.85rem 1rem;margin-bottom:.75rem;display:flex;align-items:center;justify-content:space-between}
-.alert-info{font-size:13px;color:var(--text)}
-.alert-info span{color:var(--muted);font-size:12px;display:block;margin-top:.15rem}
-.btn-delete{background:none;border:1px solid var(--border);border-radius:6px;padding:.3rem .65rem;font-size:12px;color:var(--muted);cursor:pointer;transition:all .15s}
-.btn-delete:hover{border-color:#dc2626;color:#dc2626}
-.alert-form{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.25rem;margin-top:1rem}
+.job-logo-sm{width:44px;height:44px;border:1px solid #e2e8f0;border-radius:10px;display:flex;align-items:center;justify-content:center;background:#f8fafc;font-size:16px;font-weight:700;color:#1A6FC4;flex-shrink:0}
+.tag{font-size:11px;font-weight:500;padding:2px 8px;border-radius:20px;background:#f8fafc;border:1px solid #e2e8f0;color:#64748b;display:inline-block;margin-right:4px;margin-top:3px}
+.tag-sector{background:#FEF0E6;color:#F47B2B;border-color:transparent}
+.tag-country{background:#E6F1FB;color:#1A6FC4;border-color:transparent}
+.btn-sm{background:none;border:1px solid #e2e8f0;border-radius:6px;padding:.3rem .65rem;font-size:12px;color:#64748b;cursor:pointer;font-family:inherit;transition:all .15s}
+.btn-sm:hover{border-color:#dc2626;color:#dc2626}
+/* Alerts */
+.alert-item{background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:.85rem 1rem;margin-bottom:.5rem;display:flex;align-items:center;justify-content:space-between}
+.alert-form-box{background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:1.25rem;margin-top:1rem}
 .alert-form-grid{display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:.75rem;align-items:end}
-.cv-upload-area{border:2px dashed var(--border);border-radius:var(--radius-lg);padding:2rem;text-align:center;cursor:pointer;transition:border .15s;margin-bottom:1rem}
-.cv-upload-area:hover{border-color:var(--blue)}
-.cv-upload-area input{display:none}
-.cv-current{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:.75rem 1rem;display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;font-size:13px}
-.empty-dash{text-align:center;padding:3rem 0;color:var(--muted)}
-.empty-dash h3{font-size:16px;color:var(--text);margin-bottom:.5rem}
-@media(max-width:768px){.dash-layout{grid-template-columns:1fr}.dash-sidebar{position:static}.profile-grid{grid-template-columns:1fr}.alert-form-grid{grid-template-columns:1fr 1fr}}
+/* CV */
+.cv-box{border:2px dashed #e2e8f0;border-radius:12px;padding:2rem;text-align:center;cursor:pointer;transition:border .15s;margin-bottom:1rem}
+.cv-box:hover{border-color:#1A6FC4}
+.cv-current{background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:.75rem 1rem;display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;font-size:13px}
+.empty{text-align:center;padding:3rem 0;color:#64748b}
+.empty h3{font-size:16px;color:#1e293b;margin-bottom:.5rem}
+.spinner{width:28px;height:28px;border:3px solid #e2e8f0;border-top-color:#1A6FC4;border-radius:50%;animation:spin .7s linear infinite;margin:2rem auto}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media(max-width:768px){.dash-layout{grid-template-columns:1fr}.sidebar{position:static}.grid2{grid-template-columns:1fr}.alert-form-grid{grid-template-columns:1fr 1fr}}
 </style>
 </head>
 <body>
-<div id="navbar-placeholder"></div>
 
-<div class="container">
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="index.html" class="logo">
+      <div class="logo-mark">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+          <circle cx="9" cy="8" r="3.5" stroke="#fff" stroke-width="1.8"/>
+          <path d="M3 19c0-3.314 2.686-6 6-6" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/>
+          <path d="M15 13l2 2 4-4" stroke="#F47B2B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      Ez<span>Workers</span>
+    </a>
+    <div class="nav-right">
+      <a href="index.html" style="font-size:14px;color:#64748b">Browse jobs</a>
+      <button class="btn-outline" id="btn-signout">Sign out</button>
+    </div>
+  </div>
+</nav>
+
+<div class="wrap">
   <div class="dash-layout">
 
-    <!-- Sidebar -->
-    <div class="dash-sidebar">
-      <div style="display:flex;align-items:center;gap:.75rem;padding:.75rem 0 1.25rem;border-bottom:1px solid var(--border);margin-bottom:1rem">
-        <div style="width:40px;height:40px;border-radius:50%;background:var(--blue);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:16px" id="avatar-initial">?</div>
+    <aside class="sidebar">
+      <div class="sidebar-user">
+        <div class="avatar" id="av">?</div>
         <div>
-          <div style="font-size:14px;font-weight:600;color:var(--dark)" id="sidebar-name">Loading...</div>
-          <div style="font-size:12px;color:var(--muted)">Job seeker</div>
+          <div class="sidebar-name" id="sname">Loading...</div>
+          <div class="sidebar-role">Job seeker</div>
         </div>
       </div>
       <ul class="dash-nav">
-        <li><a href="#" class="active" onclick="showSection('profile',this)"><span class="nav-icon">👤</span> My profile</a></li>
-        <li><a href="#" onclick="showSection('applications',this)"><span class="nav-icon">📋</span> Applications</a></li>
-        <li><a href="#" onclick="showSection('saved',this)"><span class="nav-icon">🔖</span> Saved jobs</a></li>
-        <li><a href="#" onclick="showSection('alerts',this)"><span class="nav-icon">🔔</span> Job alerts</a></li>
-        <li><a href="#" onclick="showSection('cv',this)"><span class="nav-icon">📄</span> My CV</a></li>
+        <li><button class="active" data-sec="profile">👤 My profile</button></li>
+        <li><button data-sec="applications">📋 Applications</button></li>
+        <li><button data-sec="saved">🔖 Saved jobs</button></li>
+        <li><button data-sec="alerts">🔔 Job alerts</button></li>
+        <li><button data-sec="cv">📄 My CV</button></li>
       </ul>
-      <div style="margin-top:1.5rem;padding-top:1rem;border-top:1px solid var(--border)">
-        <a href="index.html" style="font-size:13px;color:var(--muted);display:flex;align-items:center;gap:.4rem">← Browse jobs</a>
-      </div>
-    </div>
+      <div class="sidebar-footer"><a href="index.html">← Browse jobs</a></div>
+    </aside>
 
-    <!-- Main content -->
-    <div>
+    <main>
 
-      <!-- Profile section -->
       <div class="dash-section active" id="section-profile">
-        <div class="section-title">My profile</div>
-        <div class="profile-grid">
-          <div class="field">
-            <label>Full name</label>
-            <input type="text" id="p-name" placeholder="Your full name">
-          </div>
-          <div class="field">
-            <label>Professional headline</label>
-            <input type="text" id="p-headline" placeholder="e.g. Senior Procurement Manager">
-          </div>
-          <div class="field">
-            <label>Country</label>
+        <div class="sec-title">My profile</div>
+        <div class="grid2">
+          <div class="field"><label>Full name</label><input type="text" id="p-name" placeholder="Your full name"></div>
+          <div class="field"><label>Professional headline</label><input type="text" id="p-headline" placeholder="e.g. Senior Procurement Manager"></div>
+          <div class="field"><label>Country</label>
             <select id="p-country">
               <option value="">Select country</option>
               <option>Saudi Arabia</option><option>UAE</option><option>Qatar</option>
@@ -107,347 +142,399 @@
               <option>Pakistan</option><option>India</option><option>Egypt</option><option>Other</option>
             </select>
           </div>
-          <div class="field">
-            <label>City</label>
-            <input type="text" id="p-city" placeholder="e.g. Riyadh">
-          </div>
-          <div class="field">
-            <label>Phone (optional)</label>
-            <input type="text" id="p-phone" placeholder="+966 5x xxx xxxx">
-          </div>
-          <div class="field">
-            <label>Years of experience</label>
+          <div class="field"><label>City</label><input type="text" id="p-city" placeholder="e.g. Riyadh"></div>
+          <div class="field"><label>Phone (optional)</label><input type="text" id="p-phone" placeholder="+966 5x xxx xxxx"></div>
+          <div class="field"><label>Years of experience</label>
             <select id="p-exp">
               <option value="">Select</option>
               <option value="1">0-2 years</option><option value="3">3-5 years</option>
-              <option value="6">6-10 years</option><option value="11">11-15 years</option>
-              <option value="16">16+ years</option>
+              <option value="6">6-10 years</option><option value="11">11-15 years</option><option value="16">16+ years</option>
             </select>
           </div>
         </div>
-        <div class="field" style="grid-column:1/-1">
-          <label>Sectors of interest (hold Ctrl to select multiple)</label>
-          <select id="p-sectors" multiple style="height:120px">
-            <option>Procurement & Supply Chain</option>
-            <option>Construction & Infrastructure</option>
-            <option>Engineering & Technical</option>
-            <option>Oil & Gas / Energy</option>
-            <option>Finance & Banking</option>
-            <option>IT & Technology</option>
-            <option>HR & Admin</option>
-            <option>Healthcare</option>
+        <div class="field"><label>Sectors of interest (hold Ctrl to select multiple)</label>
+          <select id="p-sectors" multiple>
+            <option>Procurement & Supply Chain</option><option>Construction & Infrastructure</option>
+            <option>Engineering & Technical</option><option>Oil & Gas / Energy</option>
+            <option>Finance & Banking</option><option>IT & Technology</option>
+            <option>HR & Admin</option><option>Healthcare</option>
           </select>
         </div>
-        <div class="field">
-          <label>Bio / summary (optional)</label>
+        <div class="field"><label>Bio / summary (optional)</label>
           <textarea id="p-bio" placeholder="A brief professional summary..."></textarea>
         </div>
-        <button class="btn-save" id="btn-save-profile" onclick="saveProfileData()">Save profile</button>
-        <div class="result-msg" id="result-profile"></div>
+        <button class="btn-blue" id="btn-save-profile">Save profile</button>
+        <div class="msg" id="msg-profile"></div>
       </div>
 
-      <!-- Applications section -->
       <div class="dash-section" id="section-applications">
-        <div class="section-title">My applications</div>
-        <div id="applications-list">
-          <div class="loading-grid"><div class="spinner"></div></div>
-        </div>
+        <div class="sec-title">My applications</div>
+        <div id="list-applications"><div class="spinner"></div></div>
       </div>
 
-      <!-- Saved jobs section -->
       <div class="dash-section" id="section-saved">
-        <div class="section-title">Saved jobs</div>
-        <div id="saved-list">
-          <div class="loading-grid"><div class="spinner"></div></div>
-        </div>
+        <div class="sec-title">Saved jobs</div>
+        <div id="list-saved"><div class="spinner"></div></div>
       </div>
 
-      <!-- Job alerts section -->
       <div class="dash-section" id="section-alerts">
-        <div class="section-title">Job alerts</div>
-        <div id="alerts-list"></div>
-        <div class="alert-form">
-          <div style="font-size:13px;font-weight:600;color:var(--dark);margin-bottom:.85rem">Add new alert</div>
+        <div class="sec-title">Job alerts</div>
+        <div id="list-alerts"></div>
+        <div class="alert-form-box">
+          <div style="font-size:13px;font-weight:600;color:#0f172a;margin-bottom:.85rem">Add new alert</div>
           <div class="alert-form-grid">
-            <div class="field" style="margin:0">
-              <label style="font-size:12px">Keyword</label>
-              <input type="text" id="alert-keyword" placeholder="e.g. procurement">
+            <div class="field" style="margin:0"><label style="font-size:12px">Keyword</label>
+              <input type="text" id="al-keyword" placeholder="e.g. procurement">
             </div>
-            <div class="field" style="margin:0">
-              <label style="font-size:12px">Country</label>
-              <select id="alert-country">
+            <div class="field" style="margin:0"><label style="font-size:12px">Country</label>
+              <select id="al-country">
                 <option value="">Any country</option>
                 <option>Saudi Arabia</option><option>UAE</option><option>Qatar</option>
                 <option>Kuwait</option><option>Bahrain</option><option>Oman</option>
               </select>
             </div>
-            <div class="field" style="margin:0">
-              <label style="font-size:12px">Frequency</label>
-              <select id="alert-freq">
-                <option value="weekly">Weekly</option>
-                <option value="daily">Daily</option>
-              </select>
+            <div class="field" style="margin:0"><label style="font-size:12px">Frequency</label>
+              <select id="al-freq"><option value="weekly">Weekly</option><option value="daily">Daily</option></select>
             </div>
-            <button class="btn-save" style="height:38px" onclick="addAlert()">Add</button>
+            <button class="btn-blue" id="btn-add-alert" style="height:38px;padding:.4rem 1rem">Add</button>
           </div>
+          <div class="msg" id="msg-alert"></div>
         </div>
       </div>
 
-      <!-- CV section -->
       <div class="dash-section" id="section-cv">
-        <div class="section-title">My CV</div>
-        <div id="cv-current-wrap"></div>
-        <div class="cv-upload-area" onclick="document.getElementById('cv-file').click()">
-          <input type="file" id="cv-file" accept=".pdf,.doc,.docx" onchange="uploadCV(this)">
-          <div style="font-size:24px;margin-bottom:.5rem">📄</div>
-          <div style="font-size:14px;font-weight:500;color:var(--text)">Click to upload your CV</div>
-          <div style="font-size:12px;color:var(--muted);margin-top:.25rem">PDF, DOC or DOCX — max 5MB</div>
+        <div class="sec-title">My CV</div>
+        <div id="cv-current"></div>
+        <div class="cv-box" id="cv-dropzone">
+          <input type="file" id="cv-file" accept=".pdf,.doc,.docx" style="display:none">
+          <div style="font-size:28px;margin-bottom:.5rem">📄</div>
+          <div style="font-size:14px;font-weight:500;color:#1e293b">Click to upload your CV</div>
+          <div style="font-size:12px;color:#64748b;margin-top:.25rem">PDF, DOC or DOCX — max 5MB</div>
         </div>
-        <div class="result-msg" id="result-cv"></div>
-        <div style="background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1rem;margin-top:1rem">
-          <div style="font-size:13px;font-weight:600;color:var(--dark);margin-bottom:.35rem">How your CV is used</div>
-          <div style="font-size:13px;color:var(--muted);line-height:1.6">When you apply for a job through EzWorkers, your CV is automatically attached to your application. Employers can download it to review your experience. Your CV is never shared without your application.</div>
+        <div class="msg" id="msg-cv"></div>
+        <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:1rem;margin-top:1rem;font-size:13px;color:#64748b;line-height:1.6">
+          Your CV is attached automatically when you apply for jobs through EzWorkers. It is never shared without your application.
         </div>
       </div>
 
-    </div>
+    </main>
   </div>
 </div>
 
-<div id="footer-placeholder"></div>
-
-<script src="js/main.js"></script>
-<script src="js/auth.js"></script>
 <script>
-requireAuth();
+(function() {
+  'use strict';
 
-document.getElementById('navbar-placeholder').innerHTML = buildNavbar('');
-document.getElementById('footer-placeholder').innerHTML = buildFooter();
+  const SB  = 'https://wxltwnyuhiejavzichfd.supabase.co';
+  const KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind4bHR3bnl1aGllamF2emljaGZkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIyMjk4NDYsImV4cCI6MjA5NzgwNTg0Nn0.8PH3VTz2u6rRcu-LqZYGMDbNIdj9YldNBQJ1irTCtI4';
 
-// Load profile into form
-const profile = getProfile();
-if (profile) {
-  document.getElementById('sidebar-name').textContent = profile.full_name || 'Your profile';
-  document.getElementById('avatar-initial').textContent = (profile.full_name || 'U').charAt(0).toUpperCase();
-  document.getElementById('p-name').value    = profile.full_name || '';
-  document.getElementById('p-headline').value = profile.headline || '';
-  document.getElementById('p-country').value  = profile.country || '';
-  document.getElementById('p-city').value     = profile.city || '';
-  document.getElementById('p-phone').value    = profile.phone || '';
-  document.getElementById('p-exp').value      = profile.experience_years || '';
-  document.getElementById('p-bio').value      = profile.bio || '';
+  // ── Auth check ────────────────────────────────────────────────────────────
+  let session, profile;
+  try {
+    session = JSON.parse(localStorage.getItem('ez_session') || 'null');
+    profile = JSON.parse(localStorage.getItem('ez_profile') || 'null');
+  } catch(e) { session = null; profile = null; }
 
-  if (profile.sectors && profile.sectors.length) {
-    const sel = document.getElementById('p-sectors');
-    Array.from(sel.options).forEach(opt => {
-      opt.selected = profile.sectors.includes(opt.value);
+  if (!session || (session.expires_at && Date.now()/1000 > session.expires_at)) {
+    window.location.href = 'login.html';
+    return;
+  }
+
+  // ── API helper ────────────────────────────────────────────────────────────
+  async function api(path, opts) {
+    opts = opts || {};
+    const headers = Object.assign({
+      'apikey': KEY,
+      'Authorization': 'Bearer ' + session.access_token,
+      'Content-Type': 'application/json',
+    }, opts.headers || {});
+    return fetch(SB + path, Object.assign({}, opts, { headers }));
+  }
+
+  // ── Show message ──────────────────────────────────────────────────────────
+  function showMsg(id, type, text) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.style.display = 'block';
+    el.className = 'msg ' + type;
+    el.textContent = text;
+  }
+
+  // ── Time ago ──────────────────────────────────────────────────────────────
+  function ago(d) {
+    if (!d) return '';
+    const diff = Date.now() - new Date(d).getTime();
+    const h = Math.floor(diff/3600000), days = Math.floor(diff/86400000);
+    if (h < 1) return 'just now';
+    if (h < 24) return h + 'h ago';
+    if (days < 7) return days + 'd ago';
+    return new Date(d).toLocaleDateString('en-GB', {day:'numeric',month:'short'});
+  }
+
+  // ── Init sidebar from profile ─────────────────────────────────────────────
+  function initSidebar() {
+    if (!profile) return;
+    const name = profile.full_name || 'Your profile';
+    document.getElementById('sname').textContent = name;
+    document.getElementById('av').textContent = name.charAt(0).toUpperCase();
+    // Fill profile form
+    document.getElementById('p-name').value     = profile.full_name || '';
+    document.getElementById('p-headline').value = profile.headline || '';
+    document.getElementById('p-country').value  = profile.country || '';
+    document.getElementById('p-city').value     = profile.city || '';
+    document.getElementById('p-phone').value    = profile.phone || '';
+    document.getElementById('p-exp').value      = profile.experience_years || '';
+    document.getElementById('p-bio').value      = profile.bio || '';
+    if (Array.isArray(profile.sectors)) {
+      const sel = document.getElementById('p-sectors');
+      Array.from(sel.options).forEach(function(o) {
+        o.selected = profile.sectors.indexOf(o.value) !== -1;
+      });
+    }
+    if (profile.cv_url) {
+      document.getElementById('cv-current').innerHTML =
+        '<div class="cv-current"><span>📄 CV on file</span><a href="'+profile.cv_url+'" target="_blank" style="color:#1A6FC4;font-weight:500;font-size:13px">Download</a></div>';
+    }
+  }
+
+  // ── Navigation ────────────────────────────────────────────────────────────
+  function showSection(name) {
+    document.querySelectorAll('.dash-section').forEach(function(s){ s.classList.remove('active'); });
+    document.querySelectorAll('.dash-nav button').forEach(function(b){ b.classList.remove('active'); });
+    var sec = document.getElementById('section-' + name);
+    if (sec) sec.classList.add('active');
+    var btn = document.querySelector('[data-sec="'+name+'"]');
+    if (btn) btn.classList.add('active');
+    if (name === 'applications') loadApplications();
+    if (name === 'saved')        loadSaved();
+    if (name === 'alerts')       loadAlerts();
+  }
+
+  document.querySelectorAll('.dash-nav button').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      showSection(this.getAttribute('data-sec'));
     });
-  }
-
-  if (profile.cv_url) {
-    document.getElementById('cv-current-wrap').innerHTML = `
-      <div class="cv-current">
-        <span>📄 CV uploaded</span>
-        <a href="${profile.cv_url}" target="_blank" style="color:var(--blue);font-size:13px;font-weight:500">Download</a>
-      </div>`;
-  }
-}
-
-updateNavAuth();
-
-function showSection(name, el) {
-  document.querySelectorAll('.dash-section').forEach(s => s.classList.remove('active'));
-  document.querySelectorAll('.dash-nav a').forEach(a => a.classList.remove('active'));
-  document.getElementById(`section-${name}`).classList.add('active');
-  el.classList.add('active');
-
-  if (name === 'applications') loadApplications();
-  if (name === 'saved')        loadSaved();
-  if (name === 'alerts')       loadAlerts();
-  return false;
-}
-
-async function saveProfileData() {
-  const btn = document.getElementById('btn-save-profile');
-  btn.disabled = true; btn.textContent = 'Saving...';
-
-  const sectors = Array.from(document.getElementById('p-sectors').selectedOptions).map(o => o.value);
-  const ok = await updateProfile({
-    full_name:        document.getElementById('p-name').value.trim(),
-    headline:         document.getElementById('p-headline').value.trim(),
-    country:          document.getElementById('p-country').value,
-    city:             document.getElementById('p-city').value.trim(),
-    phone:            document.getElementById('p-phone').value.trim(),
-    experience_years: parseInt(document.getElementById('p-exp').value) || null,
-    bio:              document.getElementById('p-bio').value.trim(),
-    sectors,
   });
 
-  const res = document.getElementById('result-profile');
-  res.style.display = 'block';
-  res.className = `result-msg ${ok ? 'success' : 'error'}`;
-  res.textContent = ok ? 'Profile saved successfully.' : 'Could not save profile. Try again.';
-  btn.disabled = false; btn.textContent = 'Save profile';
+  // ── Save profile ──────────────────────────────────────────────────────────
+  document.getElementById('btn-save-profile').addEventListener('click', async function() {
+    var btn = this;
+    btn.disabled = true; btn.textContent = 'Saving...';
 
-  const updatedName = document.getElementById('p-name').value.trim();
-  if (updatedName) {
-    document.getElementById('sidebar-name').textContent = updatedName;
-    document.getElementById('avatar-initial').textContent = updatedName.charAt(0).toUpperCase();
-  }
-}
+    var sectors = Array.from(document.getElementById('p-sectors').selectedOptions).map(function(o){ return o.value; });
+    var fields = {
+      full_name:        document.getElementById('p-name').value.trim(),
+      headline:         document.getElementById('p-headline').value.trim(),
+      country:          document.getElementById('p-country').value,
+      city:             document.getElementById('p-city').value.trim(),
+      phone:            document.getElementById('p-phone').value.trim(),
+      experience_years: parseInt(document.getElementById('p-exp').value) || null,
+      bio:              document.getElementById('p-bio').value.trim(),
+      sectors:          sectors,
+    };
 
-async function loadApplications() {
-  const list = document.getElementById('applications-list');
-  try {
-    const apps = await getMyApplications();
-    if (!apps.length) {
-      list.innerHTML = `<div class="empty-dash"><h3>No applications yet</h3><p>Browse jobs and click Apply to get started.</p><a href="index.html" class="btn-save" style="display:inline-block;margin-top:1rem;text-decoration:none">Browse jobs</a></div>`;
-      return;
+    try {
+      var r = await api('/rest/v1/profiles?id=eq.' + session.user.id, {
+        method: 'PATCH',
+        body: JSON.stringify(fields),
+      });
+      if (r.ok) {
+        profile = Object.assign({}, profile, fields);
+        localStorage.setItem('ez_profile', JSON.stringify(profile));
+        document.getElementById('sname').textContent = fields.full_name || 'Your profile';
+        document.getElementById('av').textContent = (fields.full_name || 'U').charAt(0).toUpperCase();
+        showMsg('msg-profile', 'ok', 'Profile saved successfully.');
+      } else {
+        var err = await r.json();
+        showMsg('msg-profile', 'err', 'Save failed: ' + (err.message || r.status));
+      }
+    } catch(e) {
+      showMsg('msg-profile', 'err', 'Network error: ' + e.message);
     }
-    list.innerHTML = apps.map(a => {
-      const job = a.jobs || {};
-      const statusClass = `status-${a.status}`;
-      return `<div class="app-card">
-        <div>
-          <div class="app-title">${job.title || 'Job'}</div>
-          <div class="app-company">${job.company || ''} ${job.country ? '· ' + job.country : ''}</div>
-          <div class="app-meta">Applied ${timeAgo(a.applied_at)} · ${job.sector || ''}</div>
-        </div>
-        <span class="status-badge ${statusClass}">${a.status}</span>
-      </div>`;
-    }).join('');
-  } catch (e) {
-    list.innerHTML = `<div class="empty-dash"><p>Could not load applications.</p></div>`;
-  }
-}
+    btn.disabled = false; btn.textContent = 'Save profile';
+  });
 
-async function loadSaved() {
-  const list = document.getElementById('saved-list');
-  try {
-    const saved = await getMySavedJobs();
-    if (!saved.length) {
-      list.innerHTML = `<div class="empty-dash"><h3>No saved jobs</h3><p>Click the bookmark icon on any job to save it here.</p></div>`;
-      return;
+  // ── Applications ──────────────────────────────────────────────────────────
+  async function loadApplications() {
+    var list = document.getElementById('list-applications');
+    list.innerHTML = '<div class="spinner"></div>';
+    try {
+      var r = await api('/rest/v1/applications?select=*,jobs(title,company,country,sector,posted_at)&order=applied_at.desc');
+      var apps = r.ok ? await r.json() : [];
+      if (!apps.length) {
+        list.innerHTML = '<div class="empty"><h3>No applications yet</h3><p>Apply to jobs and track them here.</p><a href="index.html" style="display:inline-block;margin-top:1rem;padding:.6rem 1.25rem;background:#1A6FC4;color:#fff;border-radius:10px;font-size:14px;font-weight:600">Browse jobs</a></div>';
+        return;
+      }
+      var statusClass = {applied:'s-applied',viewed:'s-viewed',shortlisted:'s-shortlisted',rejected:'s-rejected'};
+      list.innerHTML = apps.map(function(a) {
+        var j = a.jobs || {};
+        var sc = statusClass[a.status] || 's-applied';
+        return '<div class="app-card"><div class="app-info"><div class="job-title">'+(j.title||'Job')+'</div><div class="job-sub">'+(j.company||'')+(j.country?' · '+j.country:'')+'</div><div class="job-meta">Applied '+ago(a.applied_at)+(j.sector?' · '+j.sector:'')+'</div></div><span class="status '+sc+'">'+a.status+'</span></div>';
+      }).join('');
+    } catch(e) {
+      list.innerHTML = '<div class="empty"><p>Could not load applications.</p></div>';
     }
-    list.innerHTML = saved.map(s => {
-      const job = s.jobs || {};
-      return `<div class="saved-card">
-        <div class="job-logo" style="width:40px;height:40px;font-size:15px">${(job.company||'?').charAt(0)}</div>
-        <div>
-          <a href="job.html?id=${job.id}" style="font-size:14px;font-weight:600;color:var(--dark)">${job.title || 'Job'}</a>
-          <div style="font-size:12px;color:var(--muted);margin-top:.15rem">${job.company || ''} ${job.country ? '· ' + job.country : ''}</div>
-          <div class="job-tags" style="margin-top:.35rem">
-            ${job.sector ? `<span class="tag sector">${job.sector}</span>` : ''}
-            ${job.job_type ? `<span class="tag">${job.job_type}</span>` : ''}
-          </div>
-        </div>
-        <button class="btn-delete" onclick="doUnsave('${job.id}', this)">Remove</button>
-      </div>`;
-    }).join('');
-  } catch (e) {
-    list.innerHTML = `<div class="empty-dash"><p>Could not load saved jobs.</p></div>`;
-  }
-}
-
-async function doUnsave(jobId, btn) {
-  btn.textContent = '...';
-  await unsaveJob(jobId);
-  loadSaved();
-}
-
-async function loadAlerts() {
-  const profile = getProfile();
-  if (!profile) return;
-  const r = await sbRequest(`/rest/v1/job_alerts?user_id=eq.${profile.id}&order=created_at.desc`);
-  const alerts = r.ok ? await r.json() : [];
-  const list = document.getElementById('alerts-list');
-
-  if (!alerts.length) {
-    list.innerHTML = `<div style="font-size:13px;color:var(--muted);margin-bottom:1rem">No alerts yet. Add one below.</div>`;
-    return;
   }
 
-  list.innerHTML = alerts.map(a => `
-    <div class="alert-card">
-      <div class="alert-info">
-        ${a.keyword ? `<strong>${a.keyword}</strong>` : 'Any keyword'}
-        ${a.country ? ` in ${a.country}` : ' in any country'}
-        <span>${a.frequency} digest</span>
-      </div>
-      <button class="btn-delete" onclick="deleteAlert('${a.id}', this)">Delete</button>
-    </div>`).join('');
-}
+  // ── Saved jobs ────────────────────────────────────────────────────────────
+  async function loadSaved() {
+    var list = document.getElementById('list-saved');
+    list.innerHTML = '<div class="spinner"></div>';
+    if (!profile) return;
+    try {
+      var r = await api('/rest/v1/saved_jobs?select=*,jobs(id,title,company,country,sector,job_type,posted_at)&order=saved_at.desc');
+      var saved = r.ok ? await r.json() : [];
+      if (!saved.length) {
+        list.innerHTML = '<div class="empty"><h3>No saved jobs</h3><p>Click the bookmark on any job listing to save it here.</p></div>';
+        return;
+      }
+      list.innerHTML = saved.map(function(s) {
+        var j = s.jobs || {};
+        return '<div class="saved-card">'
+          +'<div class="job-logo-sm">'+(j.company||'?').charAt(0)+'</div>'
+          +'<div>'
+          +'<a href="job.html?id='+j.id+'" style="font-size:14px;font-weight:600;color:#0f172a">'+(j.title||'Job')+'</a>'
+          +'<div style="font-size:12px;color:#64748b;margin-top:.15rem">'+(j.company||'')+(j.country?' · '+j.country:'')+'</div>'
+          +'<div style="margin-top:.35rem">'+(j.sector?'<span class="tag tag-sector">'+j.sector+'</span>':'')+(j.job_type?'<span class="tag">'+j.job_type+'</span>':'')+'</div>'
+          +'</div>'
+          +'<button class="btn-sm" data-jobid="'+j.id+'">Remove</button>'
+          +'</div>';
+      }).join('');
+      // Bind remove buttons
+      list.querySelectorAll('[data-jobid]').forEach(function(btn) {
+        btn.addEventListener('click', async function() {
+          var jobId = this.getAttribute('data-jobid');
+          this.textContent = '...'; this.disabled = true;
+          await api('/rest/v1/saved_jobs?user_id=eq.'+profile.id+'&job_id=eq.'+jobId, { method:'DELETE' });
+          loadSaved();
+        });
+      });
+    } catch(e) {
+      list.innerHTML = '<div class="empty"><p>Could not load saved jobs.</p></div>';
+    }
+  }
 
-async function addAlert() {
-  const profile = getProfile();
-  if (!profile) return;
-  const keyword = document.getElementById('alert-keyword').value.trim();
-  const country = document.getElementById('alert-country').value;
-  const freq    = document.getElementById('alert-freq').value;
+  // ── Job alerts ────────────────────────────────────────────────────────────
+  async function loadAlerts() {
+    if (!profile) return;
+    var list = document.getElementById('list-alerts');
+    list.innerHTML = '';
+    try {
+      var r = await api('/rest/v1/job_alerts?user_id=eq.'+profile.id+'&order=created_at.desc');
+      var alerts = r.ok ? await r.json() : [];
+      if (!alerts.length) {
+        list.innerHTML = '<p style="font-size:13px;color:#64748b;margin-bottom:1rem">No alerts yet. Add one below.</p>';
+        return;
+      }
+      list.innerHTML = alerts.map(function(a) {
+        return '<div class="alert-item">'
+          +'<div><div style="font-size:13px;color:#1e293b">'+(a.keyword?'<strong>'+a.keyword+'</strong>':'Any keyword')+(a.country?' in '+a.country:' in any country')+'</div>'
+          +'<div style="font-size:12px;color:#64748b;margin-top:.15rem">'+a.frequency+' digest</div></div>'
+          +'<button class="btn-sm" data-alertid="'+a.id+'">Delete</button>'
+          +'</div>';
+      }).join('');
+      list.querySelectorAll('[data-alertid]').forEach(function(btn) {
+        btn.addEventListener('click', async function() {
+          var alertId = this.getAttribute('data-alertid');
+          this.textContent = '...'; this.disabled = true;
+          await api('/rest/v1/job_alerts?id=eq.'+alertId, { method:'DELETE' });
+          loadAlerts();
+        });
+      });
+    } catch(e) {
+      list.innerHTML = '<p style="font-size:13px;color:#64748b">Could not load alerts.</p>';
+    }
+  }
 
-  if (!keyword && !country) { alert('Please enter at least a keyword or country.'); return; }
-
-  const r = await sbRequest('/rest/v1/job_alerts', {
-    method: 'POST',
-    body: JSON.stringify({ user_id: profile.id, keyword, country, frequency: freq }),
+  document.getElementById('btn-add-alert').addEventListener('click', async function() {
+    if (!profile) return;
+    var keyword = document.getElementById('al-keyword').value.trim();
+    var country = document.getElementById('al-country').value;
+    var freq    = document.getElementById('al-freq').value;
+    if (!keyword && !country) {
+      showMsg('msg-alert', 'err', 'Please enter a keyword or select a country.'); return;
+    }
+    var btn = this;
+    btn.disabled = true; btn.textContent = '...';
+    try {
+      var r = await api('/rest/v1/job_alerts', {
+        method: 'POST',
+        body: JSON.stringify({ user_id: profile.id, keyword: keyword, country: country, frequency: freq }),
+      });
+      if (r.ok) {
+        document.getElementById('al-keyword').value = '';
+        document.getElementById('al-country').selectedIndex = 0;
+        showMsg('msg-alert', 'ok', 'Alert added successfully.');
+        setTimeout(function(){ document.getElementById('msg-alert').style.display='none'; }, 2000);
+        loadAlerts();
+      } else {
+        showMsg('msg-alert', 'err', 'Could not add alert. Try again.');
+      }
+    } catch(e) {
+      showMsg('msg-alert', 'err', 'Network error: ' + e.message);
+    }
+    btn.disabled = false; btn.textContent = 'Add';
   });
-  if (r.ok) {
-    document.getElementById('alert-keyword').value = '';
-    document.getElementById('alert-country').selectedIndex = 0;
-    loadAlerts();
-  }
-}
 
-async function deleteAlert(alertId, btn) {
-  btn.textContent = '...';
-  await sbRequest(`/rest/v1/job_alerts?id=eq.${alertId}`, { method: 'DELETE' });
-  loadAlerts();
-}
-
-async function uploadCV(input) {
-  const file = input.files[0];
-  if (!file) return;
-  if (file.size > 5 * 1024 * 1024) {
-    showCVResult('error', 'File is too large. Maximum size is 5MB.');
-    return;
-  }
-
-  const session = getSession();
-  if (!session) return;
-
-  showCVResult('success', 'Uploading...');
-
-  const fileName = `${session.user.id}/${Date.now()}-${file.name}`;
-  const r = await fetch(`${SUPABASE_URL}/storage/v1/object/cvs/${fileName}`, {
-    method: 'POST',
-    headers: {
-      'apikey': SUPABASE_ANON,
-      'Authorization': `Bearer ${session.access_token}`,
-      'Content-Type': file.type,
-    },
-    body: file,
+  // ── CV upload ─────────────────────────────────────────────────────────────
+  document.getElementById('cv-dropzone').addEventListener('click', function() {
+    document.getElementById('cv-file').click();
   });
 
-  if (r.ok) {
-    const cvUrl = `${SUPABASE_URL}/storage/v1/object/public/cvs/${fileName}`;
-    await updateProfile({ cv_url: cvUrl });
-    showCVResult('success', 'CV uploaded successfully.');
-    document.getElementById('cv-current-wrap').innerHTML = `
-      <div class="cv-current">
-        <span>📄 ${file.name}</span>
-        <a href="${cvUrl}" target="_blank" style="color:var(--blue);font-size:13px;font-weight:500">Download</a>
-      </div>`;
-  } else {
-    showCVResult('error', 'Upload failed. Please try again.');
-  }
-}
+  document.getElementById('cv-file').addEventListener('change', async function() {
+    var file = this.files[0];
+    if (!file) return;
+    if (file.size > 5*1024*1024) { showMsg('msg-cv','err','File too large. Max 5MB.'); return; }
+    showMsg('msg-cv','ok','Uploading...');
+    var fileName = session.user.id + '/' + Date.now() + '-' + file.name.replace(/[^a-zA-Z0-9._-]/g,'-');
+    try {
+      var r = await fetch(SB+'/storage/v1/object/cvs/'+fileName, {
+        method: 'POST',
+        headers: { 'apikey':KEY, 'Authorization':'Bearer '+session.access_token, 'Content-Type':file.type },
+        body: file,
+      });
+      if (r.ok) {
+        var cvUrl = SB+'/storage/v1/object/public/cvs/'+fileName;
+        await api('/rest/v1/profiles?id=eq.'+session.user.id, { method:'PATCH', body:JSON.stringify({cv_url:cvUrl}) });
+        profile = Object.assign({}, profile, { cv_url: cvUrl });
+        localStorage.setItem('ez_profile', JSON.stringify(profile));
+        showMsg('msg-cv','ok','CV uploaded successfully.');
+        document.getElementById('cv-current').innerHTML = '<div class="cv-current"><span>📄 '+file.name+'</span><a href="'+cvUrl+'" target="_blank" style="color:#1A6FC4;font-weight:500;font-size:13px">Download</a></div>';
+      } else {
+        showMsg('msg-cv','err','Upload failed. Please try again.');
+      }
+    } catch(e) {
+      showMsg('msg-cv','err','Network error: '+e.message);
+    }
+  });
 
-function showCVResult(type, msg) {
-  const el = document.getElementById('result-cv');
-  el.style.display = 'block';
-  el.className = `result-msg ${type}`;
-  el.textContent = msg;
-}
+  // ── Sign out ──────────────────────────────────────────────────────────────
+  document.getElementById('btn-signout').addEventListener('click', async function() {
+    await fetch(SB+'/auth/v1/logout', {
+      method:'POST',
+      headers:{'apikey':KEY,'Authorization':'Bearer '+(session.access_token||'')}
+    }).catch(function(){});
+    localStorage.removeItem('ez_session');
+    localStorage.removeItem('ez_profile');
+    window.location.href = 'index.html';
+  });
+
+  // ── Boot ──────────────────────────────────────────────────────────────────
+  initSidebar();
+
+  // Fetch fresh profile from Supabase to ensure data is current
+  api('/rest/v1/profiles?id=eq.'+session.user.id+'&select=*&limit=1').then(async function(r) {
+    if (r.ok) {
+      var data = await r.json();
+      if (data && data[0]) {
+        profile = data[0];
+        localStorage.setItem('ez_profile', JSON.stringify(profile));
+        initSidebar();
+      }
+    }
+  });
+
+})();
 </script>
 </body>
 </html>
