@@ -5,206 +5,132 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Sign in — EzWorkers</title>
 <meta name="robots" content="noindex">
-<link rel="stylesheet" href="css/style.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-.auth-page{min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--bg);padding:2rem}
-.auth-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);padding:2.5rem;width:100%;max-width:420px;box-shadow:var(--shadow-md)}
-.auth-logo{display:flex;align-items:center;gap:.6rem;margin-bottom:2rem;justify-content:center}
-.auth-logo-mark{width:40px;height:40px;background:#1A6FC4;border-radius:10px;display:flex;align-items:center;justify-content:center}
-.auth-logo-name{font-size:22px;font-weight:700;color:#0f172a}
-.auth-logo-name span{color:#F47B2B}
-h1{font-size:20px;font-weight:700;color:#0f172a;margin-bottom:.25rem;text-align:center}
-.auth-sub{font-size:13px;color:#64748b;text-align:center;margin-bottom:1.75rem}
+*{box-sizing:border-box;margin:0;padding:0}body{font-family:'Inter',sans-serif;background:#f8fafc;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:2rem}
+.card{background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:2.5rem;width:100%;max-width:420px;box-shadow:0 4px 16px rgba(0,0,0,.08)}
+.logo{display:flex;align-items:center;gap:.6rem;justify-content:center;margin-bottom:2rem}
+.logo-mark{width:40px;height:40px;background:#1A6FC4;border-radius:10px;display:flex;align-items:center;justify-content:center}
+.logo-name{font-size:22px;font-weight:700;color:#0f172a}.logo-name span{color:#F47B2B}
+h1{font-size:20px;font-weight:700;color:#0f172a;text-align:center;margin-bottom:.25rem}
+.sub{font-size:13px;color:#64748b;text-align:center;margin-bottom:1.5rem}
+.tabs{display:flex;border-bottom:1px solid #e2e8f0;margin-bottom:1.5rem}
+.tab{flex:1;padding:.6rem;font-size:13px;font-weight:500;color:#64748b;background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;transition:all .15s;font-family:inherit;margin-bottom:-1px}
+.tab.active{color:#1A6FC4;border-bottom-color:#1A6FC4}
+.panel{display:none}.panel.active{display:block}
 .field{margin-bottom:1rem}
 .field label{display:block;font-size:13px;font-weight:500;color:#1e293b;margin-bottom:.35rem}
 .field input{width:100%;border:1px solid #e2e8f0;border-radius:10px;padding:.65rem .85rem;font-size:14px;font-family:inherit;color:#1e293b;outline:none;transition:border .15s}
 .field input:focus{border-color:#1A6FC4}
-.btn-primary{width:100%;padding:.75rem;background:#1A6FC4;color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;transition:background .15s;margin-top:.25rem}
-.btn-primary:hover{background:#155fa0}
-.btn-primary:disabled{background:#93c5fd;cursor:not-allowed}
-.divider{display:flex;align-items:center;gap:.75rem;margin:1.25rem 0}
-.divider::before,.divider::after{content:'';flex:1;height:1px;background:#e2e8f0}
-.divider span{font-size:12px;color:#64748b;white-space:nowrap}
-.btn-magic{width:100%;padding:.7rem;background:#fff;color:#1e293b;border:1px solid #e2e8f0;border-radius:10px;font-size:14px;font-weight:500;cursor:pointer;transition:all .15s}
-.btn-magic:hover{border-color:#1A6FC4;color:#1A6FC4}
-.auth-footer{text-align:center;margin-top:1.5rem;font-size:13px;color:#64748b}
-.auth-footer a{color:#1A6FC4;font-weight:500}
-.result{margin-top:.85rem;padding:.75rem 1rem;border-radius:10px;font-size:13px;display:none}
-.result.error{background:#fef2f2;border:1px solid #fca5a5;color:#dc2626}
-.result.success{background:#f0fdf4;border:1px solid #86efac;color:#15803d}
-.tabs{display:flex;border-bottom:1px solid #e2e8f0;margin-bottom:1.5rem}
-.tab{flex:1;padding:.6rem;font-size:13px;font-weight:500;color:#64748b;background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;transition:all .15s;margin-bottom:-1px}
-.tab.active{color:#1A6FC4;border-bottom-color:#1A6FC4}
+.btn{width:100%;padding:.75rem;background:#1A6FC4;color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;transition:background .15s}
+.btn:hover{background:#155fa0}.btn:disabled{background:#93c5fd;cursor:not-allowed}
+.msg{margin-top:.85rem;padding:.75rem 1rem;border-radius:10px;font-size:13px;display:none}
+.msg.ok{background:#f0fdf4;border:1px solid #86efac;color:#15803d}
+.msg.err{background:#fef2f2;border:1px solid #fca5a5;color:#dc2626}
+.footer{text-align:center;margin-top:1.5rem;font-size:13px;color:#64748b}
+.footer a{color:#1A6FC4;font-weight:500}
 </style>
 </head>
 <body>
-<div class="auth-page">
-  <div class="auth-card">
-    <div class="auth-logo">
-      <div class="auth-logo-mark">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-          <circle cx="9" cy="8" r="3.5" stroke="#fff" stroke-width="1.8"/>
-          <path d="M3 19c0-3.314 2.686-6 6-6" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/>
-          <path d="M15 13l2 2 4-4" stroke="#F47B2B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </div>
-      <div class="auth-logo-name">Ez<span>Workers</span></div>
-    </div>
-
-    <h1>Welcome back</h1>
-    <p class="auth-sub">Sign in to your EzWorkers account</p>
-
-    <div class="tabs">
-      <button class="tab active" id="tab-password" type="button" onclick="switchTab('password')">Password</button>
-      <button class="tab" id="tab-magic" type="button" onclick="switchTab('magic')">Magic link</button>
-    </div>
-
-    <div id="panel-password">
-      <div class="field">
-        <label for="email-pw">Email address</label>
-        <input type="email" id="email-pw" placeholder="you@example.com" autocomplete="email">
-      </div>
-      <div class="field">
-        <label for="password">Password</label>
-        <input type="password" id="password" placeholder="Your password" autocomplete="current-password">
-      </div>
-      <button class="btn-primary" id="btn-signin" type="button">Sign in</button>
-      <div class="result" id="result-pw"></div>
-    </div>
-
-    <div id="panel-magic" style="display:none">
-      <div class="field">
-        <label for="email-magic">Email address</label>
-        <input type="email" id="email-magic" placeholder="you@example.com" autocomplete="email">
-      </div>
-      <button class="btn-primary" id="btn-magic" type="button">Send magic link</button>
-      <div class="result" id="result-magic"></div>
-    </div>
-
-    <div class="auth-footer">
-      Don&apos;t have an account? <a href="register.html">Create one free</a>
-    </div>
+<div class="card">
+  <div class="logo">
+    <div class="logo-mark"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="9" cy="8" r="3.5" stroke="#fff" stroke-width="1.8"/><path d="M3 19c0-3.314 2.686-6 6-6" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/><path d="M15 13l2 2 4-4" stroke="#F47B2B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+    <div class="logo-name">Ez<span>Workers</span></div>
   </div>
+  <h1>Welcome back</h1>
+  <p class="sub">Sign in to your EzWorkers account</p>
+  <div class="tabs">
+    <button class="tab active" id="tab-pw">Password</button>
+    <button class="tab" id="tab-ml">Magic link</button>
+  </div>
+  <div class="panel active" id="panel-pw">
+    <div class="field"><label>Email address</label><input type="email" id="pw-email" placeholder="you@example.com" autocomplete="email"></div>
+    <div class="field"><label>Password</label><input type="password" id="pw-pass" placeholder="Your password" autocomplete="current-password"></div>
+    <button class="btn" id="btn-pw">Sign in</button>
+    <div class="msg" id="msg-pw"></div>
+  </div>
+  <div class="panel" id="panel-ml">
+    <div class="field"><label>Email address</label><input type="email" id="ml-email" placeholder="you@example.com" autocomplete="email"></div>
+    <button class="btn" id="btn-ml">Send magic link</button>
+    <div class="msg" id="msg-ml"></div>
+  </div>
+  <div class="footer">No account? <a href="register.html">Create one free</a></div>
 </div>
-
 <script>
-const SUPABASE_URL  = 'https://wxltwnyuhiejavzichfd.supabase.co';
-const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind4bHR3bnl1aGllamF2emljaGZkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIyMjk4NDYsImV4cCI6MjA5NzgwNTg0Nn0.8PH3VTz2u6rRcu-LqZYGMDbNIdj9YldNBQJ1irTCtI4';
+var SB  = 'https://wxltwnyuhiejavzichfd.supabase.co';
+var KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind4bHR3bnl1aGllamF2emljaGZkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIyMjk4NDYsImV4cCI6MjA5NzgwNTg0Nn0.8PH3VTz2u6rRcu-LqZYGMDbNIdj9YldNBQJ1irTCtI4';
 
-// Check if already logged in
-const existingSession = localStorage.getItem('ez_session');
-if (existingSession) {
-  try {
-    const s = JSON.parse(existingSession);
-    if (s.expires_at && Date.now()/1000 < s.expires_at) {
-      const p = JSON.parse(localStorage.getItem('ez_profile') || '{}');
-      window.location.href = p.role === 'employer' ? 'employer-dashboard.html' : 'dashboard.html';
-    }
-  } catch(e) {}
-}
+// Already logged in?
+try{var s=JSON.parse(localStorage.getItem('ez_session')||'null');if(s&&s.access_token&&Date.now()/1000<s.expires_at){var p=JSON.parse(localStorage.getItem('ez_profile')||'{}');window.location.href=p.role==='employer'?'employer-dashboard.html':'dashboard.html';}}catch(e){}
 
 // Handle magic link token in URL hash
-(async function() {
-  const hash = window.location.hash;
-  if (!hash.includes('access_token')) return;
-  const params = new URLSearchParams(hash.replace('#',''));
-  const access_token = params.get('access_token');
-  if (!access_token) return;
-  const r = await fetch(SUPABASE_URL + '/auth/v1/user', {
-    headers: { 'apikey': SUPABASE_ANON, 'Authorization': 'Bearer ' + access_token }
-  });
-  const user = await r.json();
-  localStorage.setItem('ez_session', JSON.stringify({
-    access_token,
-    refresh_token: params.get('refresh_token'),
-    expires_at: Math.floor(Date.now()/1000) + parseInt(params.get('expires_in') || 3600),
-    user
-  }));
-  await loadProfile(user.id, access_token);
-  window.location.href = 'dashboard.html';
+(async function(){
+  var hash=window.location.hash;
+  if(!hash.includes('access_token'))return;
+  var params=new URLSearchParams(hash.replace('#',''));
+  var token=params.get('access_token');
+  if(!token)return;
+  try{
+    var r=await fetch(SB+'/auth/v1/user',{headers:{'apikey':KEY,'Authorization':'Bearer '+token}});
+    var user=await r.json();
+    localStorage.setItem('ez_session',JSON.stringify({access_token:token,refresh_token:params.get('refresh_token')||'',expires_at:Math.floor(Date.now()/1000)+parseInt(params.get('expires_in')||3600),user:user}));
+    var r2=await fetch(SB+'/rest/v1/profiles?id=eq.'+user.id+'&select=*&limit=1',{headers:{'apikey':KEY,'Authorization':'Bearer '+token}});
+    var pd=await r2.json();
+    if(pd&&pd[0])localStorage.setItem('ez_profile',JSON.stringify(pd[0]));
+    var profile=JSON.parse(localStorage.getItem('ez_profile')||'{}');
+    window.location.href=profile.role==='employer'?'employer-dashboard.html':'dashboard.html';
+  }catch(e){console.error(e);}
 })();
 
-async function loadProfile(userId, token) {
-  const r = await fetch(SUPABASE_URL + '/rest/v1/profiles?id=eq.' + userId + '&select=*&limit=1', {
-    headers: { 'apikey': SUPABASE_ANON, 'Authorization': 'Bearer ' + token }
-  });
-  const data = await r.json();
-  if (data && data[0]) localStorage.setItem('ez_profile', JSON.stringify(data[0]));
-}
-
-function switchTab(tab) {
-  document.getElementById('tab-password').classList.toggle('active', tab === 'password');
-  document.getElementById('tab-magic').classList.toggle('active', tab === 'magic');
-  document.getElementById('panel-password').style.display = tab === 'password' ? 'block' : 'none';
-  document.getElementById('panel-magic').style.display    = tab === 'magic'    ? 'block' : 'none';
-}
-
-function showResult(elId, type, msg) {
-  const el = document.getElementById(elId);
-  el.style.display = 'block';
-  el.className = 'result ' + type;
-  el.textContent = msg;
-}
-
-document.getElementById('btn-signin').addEventListener('click', async function() {
-  const email    = document.getElementById('email-pw').value.trim();
-  const password = document.getElementById('password').value;
-  const btn      = this;
-
-  if (!email || !password) { showResult('result-pw','error','Please enter your email and password.'); return; }
-
-  btn.disabled = true; btn.textContent = 'Signing in...';
-
-  try {
-    const r = await fetch(SUPABASE_URL + '/auth/v1/token?grant_type=password', {
-      method: 'POST',
-      headers: { 'apikey': SUPABASE_ANON, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password }),
-    });
-    const data = await r.json();
-    if (!r.ok) throw new Error(data.error_description || data.msg || 'Sign in failed');
-
-    localStorage.setItem('ez_session', JSON.stringify({
-      access_token:  data.access_token,
-      refresh_token: data.refresh_token,
-      expires_at:    Math.floor(Date.now()/1000) + (data.expires_in || 3600),
-      user:          data.user,
-    }));
-
-    await loadProfile(data.user?.id, data.access_token);
-    const profile = JSON.parse(localStorage.getItem('ez_profile') || '{}');
-    window.location.href = profile.role === 'employer' ? 'employer-dashboard.html' : 'dashboard.html';
-
-  } catch(e) {
-    showResult('result-pw','error', e.message);
-    btn.disabled = false; btn.textContent = 'Sign in';
-  }
+// Tab switching
+document.getElementById('tab-pw').addEventListener('click',function(){
+  document.getElementById('tab-pw').classList.add('active');document.getElementById('tab-ml').classList.remove('active');
+  document.getElementById('panel-pw').classList.add('active');document.getElementById('panel-ml').classList.remove('active');
+});
+document.getElementById('tab-ml').addEventListener('click',function(){
+  document.getElementById('tab-ml').classList.add('active');document.getElementById('tab-pw').classList.remove('active');
+  document.getElementById('panel-ml').classList.add('active');document.getElementById('panel-pw').classList.remove('active');
 });
 
-document.getElementById('btn-magic').addEventListener('click', async function() {
-  const email = document.getElementById('email-magic').value.trim();
-  const btn   = this;
-  if (!email) { showResult('result-magic','error','Please enter your email address.'); return; }
+function msg(id,type,text){var el=document.getElementById(id);el.className='msg '+type;el.style.display='block';el.textContent=text;}
 
-  btn.disabled = true; btn.textContent = 'Sending...';
-
-  try {
-    const r = await fetch(SUPABASE_URL + '/auth/v1/magiclink', {
-      method: 'POST',
-      headers: { 'apikey': SUPABASE_ANON, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email }),
+// Password sign in
+document.getElementById('btn-pw').addEventListener('click',async function(){
+  var email=document.getElementById('pw-email').value.trim();
+  var pass=document.getElementById('pw-pass').value;
+  var btn=this;
+  if(!email||!pass){msg('msg-pw','err','Please enter your email and password.');return;}
+  btn.disabled=true;btn.textContent='Signing in...';
+  try{
+    var r=await fetch(SB+'/auth/v1/token?grant_type=password',{
+      method:'POST',headers:{'apikey':KEY,'Content-Type':'application/json'},
+      body:JSON.stringify({email:email,password:pass})
     });
-    if (!r.ok) { const d = await r.json(); throw new Error(d.msg || 'Failed'); }
-    showResult('result-magic','success','Magic link sent to ' + email + '. Check your inbox.');
-    btn.textContent = 'Resend link'; btn.disabled = false;
-  } catch(e) {
-    showResult('result-magic','error', e.message);
-    btn.disabled = false; btn.textContent = 'Send magic link';
-  }
+    var d=await r.json();
+    if(!r.ok)throw new Error(d.error_description||d.msg||d.message||'Sign in failed. Check your email and password.');
+    localStorage.setItem('ez_session',JSON.stringify({access_token:d.access_token,refresh_token:d.refresh_token||'',expires_at:Math.floor(Date.now()/1000)+(d.expires_in||3600),user:d.user}));
+    // Load profile
+    var r2=await fetch(SB+'/rest/v1/profiles?id=eq.'+d.user.id+'&select=*&limit=1',{headers:{'apikey':KEY,'Authorization':'Bearer '+d.access_token}});
+    var pd=await r2.json();
+    if(pd&&pd[0])localStorage.setItem('ez_profile',JSON.stringify(pd[0]));
+    var profile=JSON.parse(localStorage.getItem('ez_profile')||'{}');
+    window.location.href=profile.role==='employer'?'employer-dashboard.html':'dashboard.html';
+  }catch(e){msg('msg-pw','err',e.message);btn.disabled=false;btn.textContent='Sign in';}
 });
+document.getElementById('pw-pass').addEventListener('keydown',function(e){if(e.key==='Enter')document.getElementById('btn-pw').click();});
 
-document.getElementById('password').addEventListener('keydown', function(e) {
-  if (e.key === 'Enter') document.getElementById('btn-signin').click();
+// Magic link
+document.getElementById('btn-ml').addEventListener('click',async function(){
+  var email=document.getElementById('ml-email').value.trim();
+  var btn=this;
+  if(!email){msg('msg-ml','err','Please enter your email address.');return;}
+  btn.disabled=true;btn.textContent='Sending...';
+  try{
+    var r=await fetch(SB+'/auth/v1/magiclink',{method:'POST',headers:{'apikey':KEY,'Content-Type':'application/json'},body:JSON.stringify({email:email})});
+    if(!r.ok){var d=await r.json();throw new Error(d.msg||d.message||'Could not send link');}
+    msg('msg-ml','ok','Magic link sent to '+email+'. Check your inbox.');
+    btn.textContent='Resend link';btn.disabled=false;
+  }catch(e){msg('msg-ml','err',e.message);btn.disabled=false;btn.textContent='Send magic link';}
 });
 </script>
 </body>
