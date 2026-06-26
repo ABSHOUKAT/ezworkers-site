@@ -420,7 +420,7 @@ a{color:inherit;text-decoration:none}
     var list = document.getElementById('list-alerts');
     list.innerHTML = '';
     try {
-      var r = await api('/rest/v1/job_alerts?user_id=eq.'+profile.id+'&order=created_at.desc');
+    var r = await api('/rest/v1/job_alerts?user_id=eq.'+session.user.id+'&order=created_at.desc');
       var alerts = r.ok ? await r.json() : [];
       if (!alerts.length) {
         list.innerHTML = '<p style="font-size:13px;color:#64748b;margin-bottom:1rem">No alerts yet. Add one below.</p>';
@@ -459,7 +459,7 @@ a{color:inherit;text-decoration:none}
     try {
       var r = await api('/rest/v1/job_alerts', {
         method: 'POST',
-        body: JSON.stringify({ user_id: profile.id, keyword: keyword, country: country, frequency: freq }),
+        body: JSON.stringify({ user_id: session.user.id, keyword: keyword, country: country, frequency: freq }),
       });
       if (r.ok) {
         document.getElementById('al-keyword').value = '';
