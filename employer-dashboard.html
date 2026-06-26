@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Employer Dashboard — EzWorkers</title>
+<meta name="robots" content="noindex">
+<link rel="stylesheet" href="css/style.css">
+<style>
+.dash-layout{display:grid;grid-template-columns:240px 1fr;gap:2rem;padding:2rem 0 4rem;min-height:80vh}
+.dash-sidebar{position:sticky;top:80px;align-self:start}
+.dash-nav{list-style:none}
+.dash-nav li{margin-bottom:.25rem}
+.dash-nav a{display:flex;align-items:center;gap:.6rem;padding:.55rem .75rem;border-radius:8px;font-size:14px;font-weight:500;color:var(--muted);transition:all .15s;text-decoration:none}
+.dash-nav a:hover,.dash-nav a.active{color:var(--blue);background:var(--blue-light)}
+.dash-section{display:none}
+.dash-section.active{display:block}
+.section-title{font-size:18px;font-weight:700;color:var(--dark);margin-bottom:1.25rem}
+.stat-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:2rem}
+.stat-card{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.25rem}
+.stat-num{font-size:28px;font-weight:700;color:var(--dark)}
+.stat-label{font-size:13px;color:var(--muted);margin-top:.2rem}
+.job-row{border:1px solid var(--border);border-radius:var(--radius-lg);padding:1rem 1.25rem;margin-bottom:.75rem}
+.job-row-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:.5rem}
+.job-row-title{font-size:14px;font-weight:600;color:var(--dark)}
+.job-row-meta{font-size:12px;color:var(--muted)}
+.applicant-card{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:.85rem 1rem;margin-top:.5rem;display:grid;grid-template-columns:auto 1fr auto;gap:.75rem;align-items:center}
+.applicant-avatar{width:36px;height:36px;border-radius:50%;background:var(--blue);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:14px}
+.applicant-name{font-size:13px;font-weight:600;color:var(--dark)}
+.applicant-meta{font-size:12px;color:var(--muted);margin-top:.1rem}
+.btn-cv{font-size:12px;font-weight:500;color:var(--blue);border:1px solid var(--blue);border-radius:6px;padding:.3rem .65rem;background:none;cursor:pointer;text-decoration:none}
+.field{margin-bottom:1rem}
+.field label{display:block;font-size:13px;font-weight:500;color:var(--text);margin-bottom:.35rem}
+.field input,.field select,.field textarea{width:100%;border:1px solid var(--border);border-radius:var(--radius);padding:.6rem .8rem;font-size:14px;font-family:inherit;color:var(--text);outline:none;transition:border .15s;background:var(--white)}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--blue)}
+.field textarea{min-height:120px;resize:vertical}
+.btn-save{background:var(--blue);color:#fff;border:none;border-radius:var(--radius);padding:.6rem 1.5rem;font-size:14px;font-weight:600;cursor:pointer}
+.result-msg{font-size:13px;margin-top:.75rem;padding:.6rem .85rem;border-radius:8px;display:none}
+.result-msg.success{background:#f0fdf4;color:#15803d;border:1px solid #86efac}
+.result-msg.error{background:#fef2f2;color:#dc2626;border:1px solid #fca5a5}
+.empty-dash{text-align:center;padding:3rem 0;color:var(--muted)}
+.empty-dash h3{font-size:16px;color:var(--text);margin-bottom:.5rem}
+@media(max-width:768px){.dash-layout{grid-template-columns:1fr}.stat-cards{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+<div id="navbar-placeholder"></div>
+
+<div class="container">
+  <div class="dash-layout">
+
+    <div class="dash-sidebar">
+      <div style="display:flex;align-items:center;gap:.75rem;padding:.75rem 0 1.25rem;border-bottom:1px solid var(--border);margin-bottom:1rem">
+        <div style="width:40px;height:40px;border-radius:50%;background:var(--orange);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:16px" id="avatar-initial">E</div>
+        <div>
+          <div style="font-size:14px;font-weight:600;color:var(--dark)" id="sidebar-name">Employer</div>
+          <div style="font-size:12px;color:var(--muted)">Employer account</div>
+        </div>
+      </div>
+      <ul class="dash-nav">
+        <li><a href="#" class="active" onclick="showSection('overview',this)"><span>📊</span> Overview</a></li>
+        <li><a href="#" onclick="showSection('applicants',this)"><span>👥</span> Applicants</a></li>
+        <li><a href="#" onclick="showSection('post',this)"><span>➕</span> Post a job</a></li>
+        <li><a href="#" onclick="showSection('profile',this)"><span>🏢</span> Company profile</a></li>
+      </ul>
+      <div style="margin-top:1.5rem;padding-top:1rem;border-top:1px solid var(--border)">
+        <a href="index.html" style="font-size:13px;color:var(--muted)">← Browse jobs</a>
+      </div>
+    </div>
+
+    <div>
+
+      <!-- Overview -->
+      <div class="dash-section active" id="section-overview">
+        <div class="section-title">Overview</div>
+        <div class="stat-cards">
+          <div class="stat-card">
+            <div class="stat-num" id="stat-jobs">—</div>
+            <div class="stat-label">Jobs posted</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-num" id="stat-apps">—</div>
+            <div class="stat-label">Total applications</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-num" id="stat-new">—</div>
+            <div class="stat-label">New this week</div>
+          </div>
+        </div>
+        <div style="font-size:13px;color:var(--muted)">Click "Applicants" to review CVs and applications received.</div>
+      </div>
+
+      <!-- Applicants -->
+      <div class="dash-section" id="section-applicants">
+        <div class="section-title">Applications received</div>
+        <div id="applicants-list"><div class="loading-grid"><div class="spinner"></div></div></div>
+      </div>
+
+      <!-- Post a job -->
+      <div class="dash-section" id="section-post">
+        <div class="section-title">Post a new job</div>
+        <div class="field"><label>Job title *</label><input type="text" id="pj-title" placeholder="e.g. Procurement Manager"></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+          <div class="field"><label>Country *</label>
+            <select id="pj-country">
+              <option value="">Select</option>
+              <option>Saudi Arabia</option><option>UAE</option><option>Qatar</option>
+              <option>Kuwait</option><option>Bahrain</option><option>Oman</option>
+            </select>
+          </div>
+          <div class="field"><label>City</label><input type="text" id="pj-city" placeholder="e.g. Riyadh"></div>
+          <div class="field"><label>Sector *</label>
+            <select id="pj-sector">
+              <option value="">Select</option>
+              <option>Procurement & Supply Chain</option><option>Construction & Infrastructure</option>
+              <option>Engineering & Technical</option><option>Oil & Gas / Energy</option>
+              <option>Finance & Banking</option><option>IT & Technology</option>
+              <option>HR & Admin</option><option>Healthcare</option><option>General</option>
+            </select>
+          </div>
+          <div class="field"><label>Job type *</label>
+            <select id="pj-type">
+              <option value="">Select</option>
+              <option>Full-time</option><option>Part-time</option>
+              <option>Contract</option><option>Remote</option>
+            </select>
+          </div>
+        </div>
+        <div class="field"><label>Salary (optional)</label><input type="text" id="pj-salary" placeholder="e.g. SAR 25,000/month"></div>
+        <div class="field"><label>Job description *</label><textarea id="pj-desc" placeholder="Responsibilities, requirements, what you are looking for..."></textarea></div>
+        <div class="field"><label>Apply URL or email *</label><input type="text" id="pj-apply" placeholder="https://... or hr@company.com"></div>
+        <button class="btn-save" onclick="postJob()">Post job</button>
+        <div class="result-msg" id="result-post"></div>
+      </div>
+
+      <!-- Company profile -->
+      <div class="dash-section" id="section-profile">
+        <div class="section-title">Company profile</div>
+        <div class="field"><label>Company name</label><input type="text" id="ep-company" placeholder="Your company name"></div>
+        <div class="field"><label>Company website</label><input type="text" id="ep-website" placeholder="https://yourcompany.com"></div>
+        <div class="field"><label>Contact name</label><input type="text" id="ep-name" placeholder="Your full name"></div>
+        <div class="field"><label>Bio / company description</label><textarea id="ep-bio" placeholder="Tell job seekers about your company..."></textarea></div>
+        <button class="btn-save" onclick="saveCompanyProfile()">Save profile</button>
+        <div class="result-msg" id="result-ep"></div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div id="footer-placeholder"></div>
+
+<script src="js/main.js"></script>
+<script src="js/auth.js"></script>
+<script>
+requireAuth();
+document.getElementById('navbar-placeholder').innerHTML = buildNavbar('');
+document.getElementById('footer-placeholder').innerHTML = buildFooter();
+
+const profile = getProfile();
+if (profile) {
+  if (profile.role !== 'employer') window.location.href = 'dashboard.html';
+  document.getElementById('sidebar-name').textContent   = profile.company_name || profile.full_name || 'Employer';
+  document.getElementById('avatar-initial').textContent = (profile.company_name || 'E').charAt(0).toUpperCase();
+  document.getElementById('ep-company').value = profile.company_name || '';
+  document.getElementById('ep-website').value = profile.company_website || '';
+  document.getElementById('ep-name').value    = profile.full_name || '';
+  document.getElementById('ep-bio').value     = profile.bio || '';
+}
+updateNavAuth();
+
+function showSection(name, el) {
+  document.querySelectorAll('.dash-section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.dash-nav a').forEach(a => a.classList.remove('active'));
+  document.getElementById(`section-${name}`).classList.add('active');
+  el.classList.add('active');
+  if (name === 'applicants') loadApplicants();
+  if (name === 'overview')   loadOverview();
+  return false;
+}
+
+async function loadOverview() {
+  if (!profile) return;
+  const r = await sbRequest(
+    `/rest/v1/applications?select=id,applied_at,jobs(id,title)&order=applied_at.desc`
+  );
+  const apps = r.ok ? await r.json() : [];
+  const oneWeekAgo = Date.now() - 7 * 86400000;
+  const newApps = apps.filter(a => new Date(a.applied_at).getTime() > oneWeekAgo);
+
+  document.getElementById('stat-apps').textContent = apps.length;
+  document.getElementById('stat-new').textContent  = newApps.length;
+
+  const jobsR = await sbRequest(`/rest/v1/jobs?source=eq.employer_post&select=id&limit=1`, {
+    headers: { 'Prefer': 'count=exact' }
+  });
+  const total = parseInt(jobsR.headers?.get?.('content-range')?.split('/')[1] || '0');
+  document.getElementById('stat-jobs').textContent = total;
+}
+
+async function loadApplicants() {
+  const list = document.getElementById('applicants-list');
+  const r = await sbRequest(
+    `/rest/v1/applications?select=*,jobs(title,company,country),profiles(full_name,headline,country,cv_url)&order=applied_at.desc`
+  );
+  const apps = r.ok ? await r.json() : [];
+
+  if (!apps.length) {
+    list.innerHTML = `<div class="empty-dash"><h3>No applications yet</h3><p>Applications will appear here when job seekers apply to your posted jobs.</p></div>`;
+    return;
+  }
+
+  // Group by job
+  const byJob = {};
+  apps.forEach(a => {
+    const jobTitle = a.jobs?.title || 'Unknown job';
+    if (!byJob[jobTitle]) byJob[jobTitle] = [];
+    byJob[jobTitle].push(a);
+  });
+
+  list.innerHTML = Object.entries(byJob).map(([title, jobApps]) => `
+    <div class="job-row">
+      <div class="job-row-header">
+        <div class="job-row-title">${title}</div>
+        <span class="tag">${jobApps.length} applicant${jobApps.length !== 1 ? 's' : ''}</span>
+      </div>
+      ${jobApps.map(a => {
+        const p = a.profiles || {};
+        return `<div class="applicant-card">
+          <div class="applicant-avatar">${(p.full_name || 'A').charAt(0).toUpperCase()}</div>
+          <div>
+            <div class="applicant-name">${p.full_name || 'Anonymous'}</div>
+            <div class="applicant-meta">${p.headline || ''} ${p.country ? '· ' + p.country : ''}</div>
+            ${a.cover_note ? `<div style="font-size:12px;color:var(--muted);margin-top:.25rem;font-style:italic">"${a.cover_note.substring(0, 100)}..."</div>` : ''}
+          </div>
+          ${p.cv_url ? `<a href="${p.cv_url}" target="_blank" class="btn-cv">Download CV</a>` : '<span style="font-size:12px;color:var(--muted)">No CV</span>'}
+        </div>`;
+      }).join('')}
+    </div>`).join('');
+}
+
+async function postJob() {
+  const title  = document.getElementById('pj-title').value.trim();
+  const country = document.getElementById('pj-country').value;
+  const sector  = document.getElementById('pj-sector').value;
+  const jobtype = document.getElementById('pj-type').value;
+  const desc    = document.getElementById('pj-desc').value.trim();
+  const apply   = document.getElementById('pj-apply').value.trim();
+  const res     = document.getElementById('result-post');
+
+  if (!title || !country || !sector || !jobtype || !desc || !apply) {
+    res.style.display = 'block'; res.className = 'result-msg error';
+    res.textContent = 'Please fill all required fields.'; return;
+  }
+
+  const hashSource = apply + title + (profile?.company_name || '');
+  const hashBuffer = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(hashSource));
+  const urlHash = Array.from(new Uint8Array(hashBuffer)).map(b=>b.toString(16).padStart(2,'0')).join('').substring(0,32);
+
+  const r = await sbRequest('/rest/v1/jobs', {
+    method: 'POST',
+    headers: { 'Prefer': 'resolution=ignore-duplicates' },
+    body: JSON.stringify({
+      title, country,
+      location: document.getElementById('pj-city').value.trim(),
+      sector, job_type: jobtype,
+      salary: document.getElementById('pj-salary').value.trim(),
+      description: desc,
+      apply_url: apply,
+      company: profile?.company_name || 'Employer',
+      source: 'employer_post',
+      url_hash: urlHash,
+      is_active: true,
+    }),
+  });
+
+  res.style.display = 'block';
+  res.className = `result-msg ${r.ok ? 'success' : 'error'}`;
+  res.textContent = r.ok ? `Job "${title}" posted successfully. It is now live on EzWorkers.` : 'Could not post job. Try again.';
+
+  if (r.ok) {
+    ['pj-title','pj-city','pj-salary','pj-desc','pj-apply'].forEach(id => document.getElementById(id).value = '');
+    ['pj-country','pj-sector','pj-type'].forEach(id => document.getElementById(id).selectedIndex = 0);
+  }
+}
+
+async function saveCompanyProfile() {
+  const ok = await updateProfile({
+    company_name:    document.getElementById('ep-company').value.trim(),
+    company_website: document.getElementById('ep-website').value.trim(),
+    full_name:       document.getElementById('ep-name').value.trim(),
+    bio:             document.getElementById('ep-bio').value.trim(),
+  });
+  const res = document.getElementById('result-ep');
+  res.style.display = 'block';
+  res.className = `result-msg ${ok ? 'success' : 'error'}`;
+  res.textContent = ok ? 'Profile saved.' : 'Could not save. Try again.';
+}
+
+loadOverview();
+</script>
+</body>
+</html>
