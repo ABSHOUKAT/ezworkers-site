@@ -1,0 +1,31 @@
+name: EzWorkers Alert Digest
+
+on:
+  schedule:
+    - cron: "0 7 * * 1"   # Every Monday 07:00 UTC = 10:00 Riyadh
+  workflow_dispatch:        # Manual trigger for testing
+
+jobs:
+  send-digest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install requests
+
+      - name: Run alert digest
+        env:
+          SUPABASE_URL:         ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+          BREVO_API_KEY:        ${{ secrets.BREVO_API_KEY }}
+          SITE_URL:             https://ezworkers.com
+        run: python scripts/alert_digest.py
