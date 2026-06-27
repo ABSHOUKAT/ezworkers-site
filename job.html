@@ -4,166 +4,413 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Job Details — EzWorkers</title>
-<meta name="description" content="View job details on EzWorkers — GCC's job search engine.">
+<meta name="description" content="View job details on EzWorkers — GCC job search engine.">
 <link rel="canonical" href="https://ezworkers.com/job.html">
-<link rel="stylesheet" href="css/style.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Cairo:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',sans-serif;font-size:15px;color:#1e293b;background:#fff;-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+.nav{background:#fff;border-bottom:1px solid #e2e8f0;position:sticky;top:0;z-index:100;padding:0 1.25rem}
+.nav-inner{max-width:1160px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:64px}
+.logo{display:flex;align-items:center;gap:.6rem;font-size:20px;font-weight:700;color:#0f172a}
+.lm{width:36px;height:36px;background:#1A6FC4;border-radius:9px;display:flex;align-items:center;justify-content:center}
+.logo span{color:#F47B2B}
+.logo-tag{font-size:10px;font-weight:500;color:#64748b;letter-spacing:.04em;display:block;line-height:1;margin-top:2px}
+.nav-links{display:flex;align-items:center;gap:1.75rem;list-style:none}
+.nav-links a{font-size:14px;font-weight:500;color:#64748b;transition:color .15s}
+.nav-links a:hover{color:#1A6FC4}
+.nav-right{display:flex;align-items:center;gap:.75rem}
+.btn-lang{font-size:13px;font-weight:500;color:#64748b;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:.35rem .75rem;cursor:pointer;font-family:inherit}
+.btn-orange{font-size:13px;font-weight:600;color:#fff;background:#F47B2B;border:none;border-radius:8px;padding:.4rem 1rem;cursor:pointer;font-family:inherit;transition:background .15s}
+.btn-orange:hover{background:#d96820}
+.wrap{max-width:1160px;margin:0 auto;padding:0 1.25rem}
+.back{display:inline-flex;align-items:center;gap:.35rem;font-size:13px;color:#64748b;margin-bottom:1.25rem;margin-top:2rem;transition:color .15s}
+.back:hover{color:#1A6FC4}
+.job-header{background:#f8fafc;border-bottom:1px solid #e2e8f0;padding:2.5rem 0}
+.job-top{display:flex;align-items:flex-start;gap:1.25rem}
+.job-logo{width:64px;height:64px;border:1px solid #e2e8f0;border-radius:14px;display:flex;align-items:center;justify-content:center;background:#fff;font-size:24px;font-weight:700;color:#1A6FC4;flex-shrink:0}
+.job-title{font-size:clamp(1.4rem,3vw,2rem);font-weight:700;color:#0f172a;margin-bottom:.5rem;letter-spacing:-.3px;line-height:1.2}
+.job-company{font-size:15px;color:#64748b;margin-bottom:1rem}
+.tags{display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:1.5rem}
+.tag{font-size:12px;font-weight:500;padding:3px 10px;border-radius:20px;background:#f8fafc;border:1px solid #e2e8f0;color:#64748b}
+.tag-country{background:#E6F1FB;color:#1A6FC4;border-color:transparent}
+.tag-sector{background:#FEF0E6;color:#F47B2B;border-color:transparent}
+.tag-new{background:#f0fdf4;color:#16a34a;border-color:transparent}
+.action-row{display:flex;align-items:center;gap:.75rem;flex-wrap:wrap}
+.btn-apply{display:inline-flex;align-items:center;gap:.5rem;background:#1A6FC4;color:#fff;font-size:15px;font-weight:600;padding:.75rem 2rem;border-radius:10px;border:none;cursor:pointer;font-family:inherit;transition:background .15s;text-decoration:none}
+.btn-apply:hover{background:#155fa0}
+.btn-apply-ora{background:#F47B2B}.btn-apply-ora:hover{background:#d96820}
+.btn-save-job{display:inline-flex;align-items:center;gap:.5rem;background:#fff;color:#1e293b;font-size:14px;font-weight:500;padding:.7rem 1.25rem;border-radius:10px;border:1px solid #e2e8f0;cursor:pointer;font-family:inherit;transition:all .15s}
+.btn-save-job:hover{border-color:#1A6FC4;color:#1A6FC4}
+.btn-save-job.saved{background:#E6F1FB;border-color:#1A6FC4;color:#1A6FC4}
+.btn-signin-prompt{display:inline-flex;align-items:center;gap:.5rem;background:#f8fafc;color:#64748b;font-size:13px;font-weight:500;padding:.6rem 1.25rem;border-radius:10px;border:1px solid #e2e8f0;cursor:pointer;font-family:inherit;text-decoration:none}
+/* Apply modal */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:200;align-items:center;justify-content:center;padding:1rem}
+.modal-bg.open{display:flex}
+.modal{background:#fff;border-radius:16px;padding:2rem;width:100%;max-width:480px;box-shadow:0 20px 60px rgba(0,0,0,.15)}
+.modal h3{font-size:17px;font-weight:700;color:#0f172a;margin-bottom:.25rem}
+.modal-sub{font-size:13px;color:#64748b;margin-bottom:1.25rem}
+.modal textarea{width:100%;border:1px solid #e2e8f0;border-radius:10px;padding:.75rem;font-size:14px;font-family:inherit;color:#1e293b;outline:none;resize:vertical;min-height:100px;transition:border .15s;line-height:1.5}
+.modal textarea:focus{border-color:#1A6FC4}
+.modal-actions{display:flex;gap:.75rem;margin-top:1rem}
+.btn-cancel{flex:1;padding:.65rem;background:#f8fafc;color:#64748b;border:1px solid #e2e8f0;border-radius:10px;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit}
+.btn-submit-app{flex:2;padding:.65rem;background:#F47B2B;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;transition:background .15s}
+.btn-submit-app:hover{background:#d96820}
+.btn-submit-app:disabled{background:#f4b98a;cursor:not-allowed}
+.app-result{margin-top:.85rem;padding:.75rem 1rem;border-radius:10px;font-size:13px;display:none}
+.app-result.ok{background:#f0fdf4;border:1px solid #86efac;color:#15803d}
+.app-result.er{background:#fef2f2;border:1px solid #fca5a5;color:#dc2626}
+/* Job body */
+.job-body{display:grid;grid-template-columns:1fr 300px;gap:3rem;padding:2.5rem 0 4rem;align-items:start}
+.job-desc{max-width:720px}
+.job-desc h2{font-size:17px;font-weight:600;color:#0f172a;margin:1.75rem 0 .75rem}
+.job-desc h2:first-child{margin-top:0}
+.job-desc p{font-size:15px;line-height:1.85;color:#1e293b;margin-bottom:1rem}
+.job-desc ul,.job-desc ol{padding-left:1.5rem;margin-bottom:1rem}
+.job-desc li{font-size:15px;line-height:1.75;color:#1e293b;margin-bottom:.4rem}
+.job-desc strong{color:#0f172a}
+.detail-card{background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:1.25rem;position:sticky;top:80px}
+.detail-card h4{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:#64748b;margin-bottom:1rem}
+.drow{display:flex;justify-content:space-between;padding:.5rem 0;border-bottom:1px solid #e2e8f0;font-size:13px}
+.drow:last-child{border-bottom:none}
+.drow-label{color:#64748b}
+.drow-val{font-weight:500;color:#0f172a;text-align:right;max-width:55%}
+.source-chip{font-size:11px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:20px;padding:2px 8px;color:#64748b;text-transform:capitalize}
+footer{background:#0f172a;color:rgba(255,255,255,.65);padding:3rem 0 2rem}
+.footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr;gap:2rem;margin-bottom:2rem}
+.footer-logo{font-size:18px;font-weight:700;color:#fff;margin-bottom:.75rem}
+.footer-logo span{color:#F47B2B}
+.footer-desc{font-size:13px;line-height:1.7;max-width:260px}
+.footer-col h4{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:#fff;margin-bottom:.85rem}
+.footer-col ul{list-style:none}
+.footer-col li{margin-bottom:.5rem}
+.footer-col a{font-size:13px;transition:color .15s}
+.footer-col a:hover{color:#fff}
+.footer-bottom{border-top:1px solid rgba(255,255,255,.1);padding-top:1.5rem;font-size:12px;display:flex;justify-content:space-between;align-items:center}
+.spin{width:32px;height:32px;border:3px solid #e2e8f0;border-top-color:#1A6FC4;border-radius:50%;animation:sp .7s linear infinite;margin:3rem auto}
+@keyframes sp{to{transform:rotate(360deg)}}
+@media(max-width:768px){.nav-links{display:none}.job-body{grid-template-columns:1fr}.detail-card{position:static}.job-top{flex-direction:column}}
+</style>
 </head>
 <body>
 
-<div id="navbar-placeholder"></div>
+<!-- Navbar -->
+<nav class="nav"><div class="nav-inner">
+  <a href="index.html" class="logo">
+    <div class="lm"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="9" cy="8" r="3.5" stroke="#fff" stroke-width="1.8"/><path d="M3 19c0-3.314 2.686-6 6-6" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/><path d="M15 13l2 2 4-4" stroke="#F47B2B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+    <div><span style="color:#F47B2B">Ez</span>Workers<span class="logo-tag">GCC JOBS · وظائف الخليج</span></div>
+  </a>
+  <ul class="nav-links">
+    <li><a href="index.html">Browse jobs</a></li>
+    <li><a href="blog.html">Career insights</a></li>
+    <li><a href="post-job.html">Post a job</a></li>
+  </ul>
+  <div class="nav-right" id="nav-right">
+    <a href="login.html" class="btn-lang">Sign in</a>
+    <a href="post-job.html" class="btn-orange">Post a job</a>
+  </div>
+</div></nav>
 
-<div id="job-content">
-  <div class="container" style="padding-top:3rem;padding-bottom:3rem;text-align:center">
-    <div class="spinner" style="margin:0 auto 1rem"></div>
-    <p style="color:var(--muted)">Loading job...</p>
+<!-- Main content -->
+<div id="job-content"><div class="wrap"><div class="spin"></div></div></div>
+
+<!-- Apply modal -->
+<div class="modal-bg" id="modal-bg">
+  <div class="modal">
+    <h3>Apply for this job</h3>
+    <p class="modal-sub">Your CV will be attached automatically. Add an optional cover note below.</p>
+    <textarea id="cover-note" placeholder="Optional: introduce yourself or highlight why you are a great fit..."></textarea>
+    <div class="app-result" id="app-result"></div>
+    <div class="modal-actions">
+      <button class="btn-cancel" id="btn-cancel-modal">Cancel</button>
+      <button class="btn-submit-app" id="btn-submit-app">Submit application</button>
+    </div>
   </div>
 </div>
 
-<div id="footer-placeholder"></div>
+<!-- Footer -->
+<footer><div class="wrap">
+  <div class="footer-grid">
+    <div><div class="footer-logo"><span>Ez</span>Workers</div><p class="footer-desc">The GCC job search engine for professionals in construction, energy, procurement, and beyond.</p></div>
+    <div class="footer-col"><h4>Jobs by country</h4><ul><li><a href="index.html?country=Saudi+Arabia">Saudi Arabia</a></li><li><a href="index.html?country=UAE">UAE</a></li><li><a href="index.html?country=Qatar">Qatar</a></li><li><a href="index.html?country=Kuwait">Kuwait</a></li></ul></div>
+    <div class="footer-col"><h4>Company</h4><ul><li><a href="post-job.html">Post a job</a></li><li><a href="privacy.html">Privacy policy</a></li><li><a href="terms.html">Terms of use</a></li></ul></div>
+  </div>
+  <div class="footer-bottom"><span>© 2026 EzWorkers. All rights reserved.</span></div>
+</div></footer>
 
-<script src="js/main.js"></script>
 <script>
-document.getElementById('navbar-placeholder').innerHTML = buildNavbar('');
-document.getElementById('footer-placeholder').innerHTML = buildFooter();
+(function(){
+var SB  = 'https://wxltwnyuhiejavzichfd.supabase.co';
+var KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind4bHR3bnl1aGllamF2emljaGZkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIyMjk4NDYsImV4cCI6MjA5NzgwNTg0Nn0.8PH3VTz2u6rRcu-LqZYGMDbNIdj9YldNBQJ1irTCtI4';
 
-const jobId = new URLSearchParams(location.search).get('id');
+// Auth state
+var sess = null, prof = null;
+try { sess = JSON.parse(localStorage.getItem('ez_session')||'null'); } catch(e){}
+try { prof = JSON.parse(localStorage.getItem('ez_profile')||'null'); } catch(e){}
+var loggedIn = sess && sess.access_token && (!sess.expires_at || Date.now()/1000 < sess.expires_at);
 
-async function loadJob() {
-  const content = document.getElementById('job-content');
+// Update navbar for logged-in users
+if(loggedIn && prof) {
+  var dashLink = prof.role === 'employer' ? 'employer-dashboard.html' : 'dashboard.html';
+  document.getElementById('nav-right').innerHTML =
+    '<a href="'+dashLink+'" class="btn-lang" style="color:#1A6FC4">My dashboard</a>'+
+    '<button id="btn-so" class="btn-lang">Sign out</button>';
+}
 
-  if (!jobId) {
-    content.innerHTML = `<div class="container" style="padding:3rem 0;text-align:center">
-      <h2>Job not found</h2><p style="color:var(--muted);margin-top:.5rem">No job ID provided.</p>
-      <a href="index.html" style="color:var(--blue);display:block;margin-top:1rem">← Back to jobs</a>
-    </div>`;
+function doSignOut(){
+  fetch(SB+'/auth/v1/logout',{method:'POST',headers:{'apikey':KEY,'Authorization':'Bearer '+(sess&&sess.access_token||'')}}).catch(function(){});
+  localStorage.removeItem('ez_session'); localStorage.removeItem('ez_profile');
+  window.location.href='index.html';
+}
+
+// API helper
+function api(path,opts){
+  opts=opts||{};
+  var h=Object.assign({'apikey':KEY},loggedIn?{'Authorization':'Bearer '+sess.access_token}:{},{'Content-Type':'application/json'},opts.headers||{});
+  return fetch(SB+path,Object.assign({},opts,{headers:h}));
+}
+
+// Helpers
+function timeAgo(d){
+  if(!d)return'';
+  var diff=Date.now()-new Date(d).getTime(),h=Math.floor(diff/3600000),days=Math.floor(diff/86400000);
+  if(h<1)return'just now';if(h<24)return h+'h ago';if(days<7)return days+'d ago';
+  return new Date(d).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
+}
+function isNew(d){ return d && Date.now()-new Date(d).getTime() < 86400000*3; }
+function applyHref(url){
+  if(!url)return'#';
+  if(url.includes('@'))return'mailto:'+url;
+  if(!url.startsWith('http'))return'https://'+url;
+  return url;
+}
+function formatDesc(text){
+  if(!text)return'<p>No description available.</p>';
+  var clean=text.replace(/<[^>]*>/g,'');
+  return clean.split('\n').filter(function(l){return l.trim();}).map(function(l){return'<p>'+l+'</p>';}).join('');
+}
+function drow(label,val){
+  if(!val)return'';
+  return'<div class="drow"><span class="drow-label">'+label+'</span><span class="drow-val">'+val+'</span></div>';
+}
+
+// Job ID from URL
+var jobId = new URLSearchParams(location.search).get('id');
+var currentJob = null;
+var isSaved = false;
+
+// Load job
+async function loadJob(){
+  var content = document.getElementById('job-content');
+  if(!jobId){
+    content.innerHTML='<div class="wrap" style="padding:3rem 0;text-align:center"><h2>Job not found</h2><a href="index.html" style="color:#1A6FC4;display:block;margin-top:1rem">← Back to jobs</a></div>';
     return;
   }
-
-  try {
-    const job = await getJobById(jobId);
-
-    if (!job) {
-      content.innerHTML = `<div class="container" style="padding:3rem 0;text-align:center">
-        <h2>Job not found</h2>
-        <a href="index.html" style="color:var(--blue);display:block;margin-top:1rem">← Back to jobs</a>
-      </div>`;
+  try{
+    var r = await api('/rest/v1/jobs?id=eq.'+jobId+'&select=*&limit=1');
+    var data = await r.json();
+    var job = data && data[0];
+    if(!job){
+      content.innerHTML='<div class="wrap" style="padding:3rem 0;text-align:center"><h2>Job not found</h2><a href="index.html" style="color:#1A6FC4;display:block;margin-top:1rem">← Back to jobs</a></div>';
       return;
     }
+    currentJob = job;
 
-    // Update page title and meta
-    document.title = `${job.title} ${job.company ? '— ' + job.company : ''} | EzWorkers`;
+    // Page meta
+    document.title = (job.title||'Job') + (job.company?' — '+job.company:'') + ' | EzWorkers';
     document.querySelector('meta[name="description"]').setAttribute('content',
-      `${job.title} at ${job.company || 'a company'} in ${job.location || job.country || 'GCC'}. Apply on EzWorkers.`
-    );
+      (job.title||'Job')+' at '+(job.company||'a company')+' in '+(job.location||job.country||'GCC')+'. Apply on EzWorkers.');
 
-    // Add JSON-LD for job posting SEO
-    const schema = {
-      "@context": "https://schema.org",
-      "@type": "JobPosting",
-      "title": job.title,
-      "description": job.description || '',
-      "datePosted": job.posted_at,
-      "jobLocation": {
-        "@type": "Place",
-        "address": { "@type": "PostalAddress", "addressCountry": job.country || '' }
-      },
-      "hiringOrganization": {
-        "@type": "Organization",
-        "name": job.company || 'Employer'
-      },
-      "employmentType": job.job_type || 'FULL_TIME',
+    // JSON-LD for SEO
+    var ld = {
+      '@context':'https://schema.org','@type':'JobPosting',
+      title: job.title||'',
+      description: (job.description||'').replace(/<[^>]*>/g,'').substring(0,5000),
+      datePosted: job.posted_at||'',
+      employmentType: (job.job_type||'FULL_TIME').toUpperCase().replace(/-/g,'_').replace(/ /g,'_'),
+      hiringOrganization:{'@type':'Organization',name:job.company||'Employer'},
+      jobLocation:{'@type':'Place',address:{'@type':'PostalAddress',addressCountry:job.country||''}},
     };
-    const schemaEl = document.createElement('script');
-    schemaEl.type = 'application/ld+json';
-    schemaEl.textContent = JSON.stringify(schema);
-    document.head.appendChild(schemaEl);
+    if(job.salary){ld.baseSalary={'@type':'MonetaryAmount',currency:'SAR',value:{'@type':'QuantitativeValue',value:job.salary}};}
+    var ldEl=document.createElement('script');ldEl.type='application/ld+json';ldEl.textContent=JSON.stringify(ld);document.head.appendChild(ldEl);
 
-    const applyHref = applyUrl(job.apply_url);
-    const isEmail   = job.apply_url && job.apply_url.includes('@');
+    // Check if saved
+    if(loggedIn && prof){
+      var rs = await api('/rest/v1/saved_jobs?user_id=eq.'+sess.user.id+'&job_id=eq.'+jobId+'&select=id&limit=1');
+      var sd = await rs.json();
+      isSaved = Array.isArray(sd) && sd.length > 0;
+    }
 
-    content.innerHTML = `
-      <div class="job-detail-header">
-        <div class="container">
-          <a href="index.html" class="back-link" data-i18n="back">← Back to jobs</a>
-          <div style="display:flex;align-items:flex-start;gap:1.25rem">
-            <div class="job-logo" style="width:64px;height:64px;font-size:24px;border-radius:14px">
-              ${companyInitial(job.company)}
-            </div>
-            <div style="flex:1">
-              <div class="detail-title">${job.title || 'Job opportunity'}</div>
-              <div class="detail-company">${job.company || 'Company not specified'}</div>
-              <div class="detail-tags">
-                ${job.country  ? `<span class="tag country">${job.country}</span>`   : ''}
-                ${job.location ? `<span class="tag">${job.location}</span>`           : ''}
-                ${job.sector   ? `<span class="tag sector">${job.sector}</span>`     : ''}
-                ${job.job_type ? `<span class="tag">${job.job_type}</span>`          : ''}
-                ${job.salary   ? `<span class="tag" style="font-weight:600">${job.salary}</span>` : ''}
-                ${isNew(job.posted_at) ? `<span class="tag new">${t('new_badge')}</span>` : ''}
-              </div>
-              ${applyHref !== '#' ? `
-                <a href="${applyHref}" target="${isEmail?'_self':'_blank'}" rel="noopener" class="btn-apply btn-apply-orange">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-                  <span data-i18n="apply">${t('apply')}</span>
-                </a>
-              ` : `<span style="font-size:13px;color:var(--muted)">Contact employer directly</span>`}
-            </div>
-          </div>
-        </div>
-      </div>
+    var href    = applyHref(job.apply_url);
+    var isEmail = job.apply_url && job.apply_url.includes('@');
+    var newBadge = isNew(job.posted_at) ? '<span class="tag tag-new">New</span>' : '';
 
-      <div class="container">
-        <div style="display:grid;grid-template-columns:1fr 300px;gap:3rem;align-items:start">
-          <div class="job-description">
-            <h2>About this role</h2>
-            ${formatDescription(job.description)}
-          </div>
-          <div style="padding-top:2.5rem">
-            <div class="card" style="background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.25rem">
-              <h4 style="font-size:13px;font-weight:600;margin-bottom:1rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)">Job details</h4>
-              ${rowDetail('Location', job.location || job.country)}
-              ${rowDetail('Country', job.country)}
-              ${rowDetail('Job type', job.job_type)}
-              ${rowDetail('Sector', job.sector)}
-              ${rowDetail('Salary', job.salary)}
-              ${rowDetail('Posted', new Date(job.posted_at).toLocaleDateString('en-GB', {day:'numeric',month:'long',year:'numeric'}))}
-              ${rowDetail('Source', job.source ? job.source.replace(/_/g,' ') : '')}
-            </div>
+    // Action buttons depending on auth state
+    var actionHTML = '';
+    if(loggedIn && prof && prof.role !== 'employer'){
+      // Logged-in job seeker
+      actionHTML =
+        '<button class="btn-apply btn-apply-ora" id="btn-apply-ez">📋 Apply via EzWorkers</button>'+
+        '<button class="btn-save-job'+(isSaved?' saved':'')+'" id="btn-save">'+
+          (isSaved?'🔖 Saved':'🔖 Save job')+
+        '</button>';
+      if(href !== '#'){
+        actionHTML += '<a href="'+href+'" target="'+(isEmail?'_self':'_blank')+'" rel="noopener" class="btn-lang" style="font-size:13px">Apply on employer site →</a>';
+      }
+    } else if(!loggedIn){
+      // Not logged in
+      actionHTML =
+        '<a href="login.html?next='+encodeURIComponent(location.href)+'" class="btn-apply btn-apply-ora">Sign in to apply</a>'+
+        (href!=='#'?'<a href="'+href+'" target="'+(isEmail?'_self':'_blank')+'" rel="noopener" class="btn-signin-prompt">Apply on employer site →</a>':'');
+    } else {
+      // Employer logged in or no profile
+      if(href !== '#'){
+        actionHTML = '<a href="'+href+'" target="'+(isEmail?'_self':'_blank')+'" rel="noopener" class="btn-apply btn-apply-ora">Apply for this job</a>';
+      }
+    }
 
-            ${applyHref !== '#' ? `
-              <a href="${applyHref}" target="${isEmail?'_self':'_blank'}" rel="noopener"
-                 class="btn-apply" style="display:flex;margin-top:1rem;justify-content:center">
-                <span data-i18n="apply">${t('apply')}</span>
-              </a>
-            ` : ''}
+    content.innerHTML =
+      '<div class="job-header"><div class="wrap">'+
+        '<a href="index.html" class="back">← Back to jobs</a>'+
+        '<div class="job-top">'+
+          '<div class="job-logo">'+(job.company||'?').charAt(0).toUpperCase()+'</div>'+
+          '<div style="flex:1">'+
+            '<div class="job-title">'+(job.title||'Job opportunity')+'</div>'+
+            '<div class="job-company">'+(job.company||'Company not specified')+'</div>'+
+            '<div class="tags">'+
+              (job.country?'<span class="tag tag-country">'+job.country+'</span>':'')+
+              (job.location&&job.location!==job.country?'<span class="tag">'+job.location+'</span>':'')+
+              (job.sector?'<span class="tag tag-sector">'+job.sector+'</span>':'')+
+              (job.job_type?'<span class="tag">'+job.job_type+'</span>':'')+
+              (job.salary?'<span class="tag" style="font-weight:600">'+job.salary+'</span>':'')+
+              newBadge+
+            '</div>'+
+            '<div class="action-row" id="action-row">'+actionHTML+'</div>'+
+          '</div>'+
+        '</div>'+
+      '</div></div>'+
+      '<div class="wrap"><div class="job-body">'+
+        '<div class="job-desc"><h2>About this role</h2>'+formatDesc(job.description)+'</div>'+
+        '<div>'+
+          '<div class="detail-card">'+
+            '<h4>Job details</h4>'+
+            drow('Location', job.location||job.country)+
+            drow('Country', job.country)+
+            drow('Job type', job.job_type)+
+            drow('Sector', job.sector)+
+            drow('Salary', job.salary)+
+            drow('Posted', timeAgo(job.posted_at))+
+            (job.source?'<div class="drow"><span class="drow-label">Source</span><span class="source-chip">'+job.source.replace(/_/g,' ')+'</span></div>':'')+
+          '</div>'+
+          (loggedIn && prof && prof.role !== 'employer' ?
+            '<button class="btn-apply btn-apply-ora" id="btn-apply-ez-2" style="display:flex;width:100%;justify-content:center;margin-top:1rem">📋 Apply via EzWorkers</button>'
+            : (href!=='#' ? '<a href="'+href+'" target="'+(isEmail?'_self':'_blank')+'" rel="noopener" class="btn-apply" style="display:flex;width:100%;justify-content:center;margin-top:1rem">Apply for this job</a>' : '')
+          )+
+          '<a href="index.html" style="display:block;text-align:center;margin-top:1rem;font-size:13px;color:#64748b">← Browse all jobs</a>'+
+        '</div>'+
+      '</div></div>';
 
-            <a href="index.html" style="display:block;text-align:center;margin-top:1rem;font-size:13px;color:var(--muted)">
-              ← Browse all jobs
-            </a>
-          </div>
-        </div>
-      </div>`;
+    // Bind buttons after render
+    var btnApply = document.getElementById('btn-apply-ez');
+    var btnApply2 = document.getElementById('btn-apply-ez-2');
+    var btnSave  = document.getElementById('btn-save');
 
-    // Re-apply translations to newly inserted content
-    applyTranslations();
+    if(btnApply)  btnApply.addEventListener('click',  openApplyModal);
+    if(btnApply2) btnApply2.addEventListener('click', openApplyModal);
+    if(btnSave)   btnSave.addEventListener('click',   toggleSave);
 
-  } catch (e) {
-    content.innerHTML = `<div class="container" style="padding:3rem 0;text-align:center">
-      <h2>Error loading job</h2>
-      <p style="color:var(--muted);margin-top:.5rem">${e.message}</p>
-      <a href="index.html" style="color:var(--blue);display:block;margin-top:1rem">← Back to jobs</a>
-    </div>`;
+  }catch(e){
+    content.innerHTML='<div class="wrap" style="padding:3rem 0;text-align:center"><h2>Error loading job</h2><p style="color:#64748b;margin-top:.5rem">'+e.message+'</p><a href="index.html" style="color:#1A6FC4;display:block;margin-top:1rem">← Back to jobs</a></div>';
   }
 }
 
-function rowDetail(label, value) {
-  if (!value) return '';
-  return `<div style="display:flex;justify-content:space-between;padding:.5rem 0;border-bottom:1px solid var(--border);font-size:13px">
-    <span style="color:var(--muted)">${label}</span>
-    <span style="font-weight:500;color:var(--text);text-align:right;max-width:60%">${value}</span>
-  </div>`;
+// Apply modal
+function openApplyModal(){
+  if(!loggedIn){window.location.href='login.html?next='+encodeURIComponent(location.href);return;}
+  document.getElementById('cover-note').value='';
+  document.getElementById('app-result').style.display='none';
+  document.getElementById('btn-submit-app').disabled=false;
+  document.getElementById('btn-submit-app').textContent='Submit application';
+  document.getElementById('modal-bg').classList.add('open');
+}
+
+document.getElementById('btn-cancel-modal').addEventListener('click',function(){
+  document.getElementById('modal-bg').classList.remove('open');
+});
+document.getElementById('modal-bg').addEventListener('click',function(e){
+  if(e.target===this) this.classList.remove('open');
+});
+
+document.getElementById('btn-submit-app').addEventListener('click', async function(){
+  if(!currentJob||!loggedIn)return;
+  var btn=this;
+  btn.disabled=true; btn.textContent='Submitting...';
+  var note = document.getElementById('cover-note').value.trim();
+  var res  = document.getElementById('app-result');
+
+  try{
+    var r = await api('/rest/v1/applications',{
+      method:'POST',
+      headers:{'Prefer':'resolution=ignore-duplicates,return=representation'},
+      body: JSON.stringify({
+        job_id:       currentJob.id,
+        applicant_id: sess.user.id,
+        cover_note:   note,
+        cv_url:       prof&&prof.cv_url||null,
+        status:       'applied'
+      })
+    });
+
+    if(r.status===201||r.status===200){
+      res.style.display='block'; res.className='app-result ok';
+      res.textContent='Application submitted successfully! Track it in your dashboard.';
+      btn.textContent='Applied ✓';
+      // Open employer apply URL too
+      if(currentJob.apply_url){
+        var href=applyHref(currentJob.apply_url);
+        if(href!=='#') setTimeout(function(){window.open(href,currentJob.apply_url.includes('@')?'_self':'_blank');},1200);
+      }
+    } else if(r.status===409){
+      res.style.display='block'; res.className='app-result er';
+      res.textContent='You have already applied to this job.';
+      btn.disabled=false; btn.textContent='Submit application';
+    } else {
+      var et=await r.text();
+      res.style.display='block'; res.className='app-result er';
+      res.textContent='Could not submit application ('+r.status+'). Please try again.';
+      btn.disabled=false; btn.textContent='Submit application';
+    }
+  }catch(e){
+    res.style.display='block'; res.className='app-result er';
+    res.textContent='Network error: '+e.message;
+    btn.disabled=false; btn.textContent='Submit application';
+  }
+});
+
+// Save / unsave
+async function toggleSave(){
+  if(!loggedIn){window.location.href='login.html?next='+encodeURIComponent(location.href);return;}
+  var btn=document.getElementById('btn-save');
+  if(!btn)return;
+  btn.textContent='...'; btn.disabled=true;
+  try{
+    if(isSaved){
+      await api('/rest/v1/saved_jobs?user_id=eq.'+sess.user.id+'&job_id=eq.'+jobId,{method:'DELETE'});
+      isSaved=false;
+      btn.textContent='🔖 Save job'; btn.classList.remove('saved');
+    } else {
+      await api('/rest/v1/saved_jobs',{method:'POST',headers:{'Prefer':'resolution=ignore-duplicates'},body:JSON.stringify({user_id:sess.user.id,job_id:jobId})});
+      isSaved=true;
+      btn.textContent='🔖 Saved'; btn.classList.add('saved');
+    }
+  }catch(e){ btn.textContent=isSaved?'🔖 Saved':'🔖 Save job'; }
+  btn.disabled=false;
 }
 
 loadJob();
+document.addEventListener("click",function(e){if(e.target&&e.target.id==="btn-so")doSignOut();});
+})();
 </script>
 </body>
 </html>
