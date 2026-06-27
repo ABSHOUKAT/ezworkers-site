@@ -63,10 +63,11 @@ SECTOR_KEYWORDS = {
 def url_hash(url: str) -> str:
     return hashlib.sha256(url.strip().encode()).hexdigest()[:32]
 
-def detect_country(text: str) -> str:
-    low = text.lower()
+def detect_country(title: str, location: str = "") -> str:
+    """Only detect GCC country from title and location — NOT from description text."""
+    combined = (title + " " + location).lower()
     for kw, country in GCC_COUNTRIES.items():
-        if kw in low:
+        if kw in combined:
             return country
     return "Global"
 
@@ -135,12 +136,12 @@ def fetch_indeed() -> list[dict]:
                 if not link:
                     continue
 
-                combined = f"{title} {description}"
+                combined = f"{title}"  # Only use title for country detection, not description
                 jobs.append({
                     "title":       clean(title, 200),
                     "company":     clean(author, 200),
                     "location":    "",
-                    "country":     detect_country(combined),
+                    "country":     detect_country(title, ""),  # location field not available in RSS
                     "sector":      detect_sector(combined),
                     "job_type":    "Full-time",
                     "salary":      "",
@@ -177,7 +178,7 @@ def fetch_remotive() -> list[dict]:
                     "title":       clean(j.get("title",""), 200),
                     "company":     clean(j.get("company_name",""), 200),
                     "location":    clean(j.get("candidate_required_location",""), 200),
-                    "country":     detect_country(combined),
+                    "country":     detect_country(title, ""),  # location field not available in RSS
                     "sector":      detect_sector(combined),
                     "job_type":    j.get("job_type","Remote"),
                     "salary":      clean(j.get("salary",""), 200),
@@ -213,7 +214,7 @@ def fetch_arbeitnow() -> list[dict]:
                     "title":       clean(j.get("title",""), 200),
                     "company":     clean(j.get("company_name",""), 200),
                     "location":    clean(j.get("location",""), 200),
-                    "country":     detect_country(combined),
+                    "country":     detect_country(title, ""),  # location field not available in RSS
                     "sector":      detect_sector(combined),
                     "job_type":    "Full-time" if not j.get("remote") else "Remote",
                     "salary":      "",
@@ -268,7 +269,7 @@ def fetch_adzuna() -> list[dict]:
                     "title":       clean(j.get("title",""), 200),
                     "company":     clean(j.get("company",{}).get("display_name",""), 200),
                     "location":    clean(location, 200),
-                    "country":     detect_country(combined),
+                    "country":     detect_country(title, ""),  # location field not available in RSS
                     "sector":      detect_sector(combined),
                     "job_type":    j.get("contract_type","Full-time") or "Full-time",
                     "salary":      f"{j.get('salary_min','')} - {j.get('salary_max','')}".strip(" -"),
