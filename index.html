@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>EzWorkers — GCC Jobs | وظائف الخليج</title>
+<meta name="google-site-verification" content="7JY2z2pa6VAKSsWzTp4E1_4s-v7vc0O73CCJJDSssoE">
 <meta name="description" content="Find jobs in Saudi Arabia, UAE, Qatar, Kuwait, Bahrain and Oman. Thousands of GCC jobs in construction, procurement, engineering, oil & gas — updated every 6 hours.">
 <meta name="keywords" content="GCC jobs, Saudi Arabia jobs, UAE jobs, Qatar jobs, expat jobs, procurement jobs Saudi Arabia, construction jobs Gulf">
 <meta property="og:title" content="EzWorkers — GCC Jobs">
@@ -26,10 +27,29 @@
   }
 }
 </script>
+<style>
+.loc-card{display:flex;align-items:center;gap:.6rem;padding:.75rem .9rem;background:#fff;border:1.5px solid #e2e8f0;border-radius:10px;text-decoration:none;color:#1e293b;font-size:14px;font-weight:500;transition:border-color .15s,color .15s}
+.loc-card:hover{border-color:#1A6FC4;color:#1A6FC4}
+.loc-flag{font-size:20px;line-height:1;flex-shrink:0}
+.loc-name{font-size:14px;font-weight:500}
+.sec-card{display:block;padding:.75rem .9rem;background:#fff;border:1.5px solid #e2e8f0;border-radius:10px;text-decoration:none;color:#1e293b;font-size:13px;font-weight:500;line-height:1.35;transition:border-color .15s,color .15s}
+.sec-card:hover{border-color:#1A6FC4;color:#1A6FC4}
+.res-card{display:flex;align-items:center;gap:.85rem;padding:1rem 1.1rem;background:#fff;border:1.5px solid #e2e8f0;border-radius:12px;text-decoration:none;transition:border-color .15s}
+.res-card:hover{border-color:#1A6FC4}
+.res-icon{font-size:26px;flex-shrink:0;line-height:1}
+.res-title{font-size:14px;font-weight:600;color:#0f172a}
+.res-sub{font-size:12px;color:#64748b;margin-top:.15rem}
+@media(max-width:768px){
+  .loc-card,.sec-card,.res-card{padding:.6rem .75rem}
+  div[style*="grid-template-columns:1fr 1fr"]{grid-template-columns:1fr!important}
+  div[style*="grid-template-columns:repeat(3"]{grid-template-columns:1fr!important}
+  div[style*="grid-template-columns:1fr 1fr;gap:3rem"]{grid-template-columns:1fr!important;gap:1.5rem!important}
+}
+</style>
 </head>
 <body>
 
-<div id="navbar-placeholder"></div>
+<div id="ez-nav"></div>
 
 <!-- Countries ticker -->
 <div class="countries-bar">
@@ -144,8 +164,54 @@
   <div class="pagination" id="pagination"></div>
 </div>
 
+
+<!-- Jobs by Location and Category -->
+<div style="background:#f8fafc;border-top:1px solid #e2e8f0;padding:3rem 0 3.5rem">
+  <div class="container">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:3rem;margin-bottom:2.5rem">
+
+      <div>
+        <h2 style="font-size:18px;font-weight:700;color:#0f172a;margin-bottom:1.1rem;letter-spacing:-.2px">Jobs by country</h2>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:.6rem">
+          <a href="jobs/saudi-arabia.html" class="loc-card"><span class="loc-flag">🇸🇦</span><span class="loc-name">Saudi Arabia</span></a>
+          <a href="jobs/uae.html" class="loc-card"><span class="loc-flag">🇦🇪</span><span class="loc-name">UAE</span></a>
+          <a href="jobs/qatar.html" class="loc-card"><span class="loc-flag">🇶🇦</span><span class="loc-name">Qatar</span></a>
+          <a href="jobs/kuwait.html" class="loc-card"><span class="loc-flag">🇰🇼</span><span class="loc-name">Kuwait</span></a>
+          <a href="jobs/bahrain.html" class="loc-card"><span class="loc-flag">🇧🇭</span><span class="loc-name">Bahrain</span></a>
+          <a href="jobs/oman.html" class="loc-card"><span class="loc-flag">🇴🇲</span><span class="loc-name">Oman</span></a>
+        </div>
+      </div>
+
+      <div>
+        <h2 style="font-size:18px;font-weight:700;color:#0f172a;margin-bottom:1.1rem;letter-spacing:-.2px">Jobs by sector</h2>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:.6rem">
+          <a href="jobs/procurement.html" class="sec-card">📦 Procurement &amp; Supply Chain</a>
+          <a href="jobs/construction.html" class="sec-card">🏗️ Construction &amp; Infrastructure</a>
+          <a href="jobs/engineering.html" class="sec-card">⚙️ Engineering &amp; Technical</a>
+          <a href="jobs/oil-gas.html" class="sec-card">⛽ Oil &amp; Gas / Energy</a>
+          <a href="index.html?sector=Finance+%26+Banking" class="sec-card">💳 Finance &amp; Banking</a>
+          <a href="index.html?sector=IT+%26+Technology" class="sec-card">💻 IT &amp; Technology</a>
+        </div>
+      </div>
+
+    </div>
+
+    <div style="border-top:1px solid #e2e8f0;padding-top:2rem">
+      <h2 style="font-size:18px;font-weight:700;color:#0f172a;margin-bottom:.4rem;letter-spacing:-.2px">Career resources</h2>
+      <p style="font-size:14px;color:#64748b;margin-bottom:1.25rem">Tools and guides for GCC job seekers</p>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem">
+        <a href="salary-guide.html" class="res-card"><span class="res-icon">💰</span><div><div class="res-title">GCC Salary Guide 2026</div><div class="res-sub">Benchmarks by sector &amp; country</div></div></a>
+        <a href="resources/cv-tips.html" class="res-card"><span class="res-icon">📄</span><div><div class="res-title">CV Writing for GCC</div><div class="res-sub">Get shortlisted faster</div></div></a>
+        <a href="resources/iqama-guide.html" class="res-card"><span class="res-icon">🪪</span><div><div class="res-title">Iqama Transfer Guide</div><div class="res-sub">Complete 2026 update</div></div></a>
+      </div>
+    </div>
+  </div>
+</div>
+
+
 <div id="footer-placeholder"></div>
 
+<script src="js/nav.js"></script>
 <script src="js/main.js"></script>
 <script>
 // State
@@ -160,7 +226,7 @@ let state = {
 };
 
 // Inject navbar and footer
-document.getElementById('navbar-placeholder').innerHTML = buildNavbar('home');
+// Navbar handled by nav.js
 document.getElementById('footer-placeholder').innerHTML = buildFooter();
 
 // Load live job count for hero stat
