@@ -99,13 +99,15 @@
              placeholder="Job title, company, or keyword"
              onkeydown="if(event.key==='Enter') doSearch()">
       <select class="search-select" id="country-select-hero">
-        <option value="all">All countries</option>
+        <option value="all">All locations</option>
         <option value="Saudi Arabia">🇸🇦 Saudi Arabia</option>
         <option value="UAE">🇦🇪 UAE</option>
         <option value="Qatar">🇶🇦 Qatar</option>
         <option value="Kuwait">🇰🇼 Kuwait</option>
         <option value="Bahrain">🇧🇭 Bahrain</option>
         <option value="Oman">🇴🇲 Oman</option>
+        <option value="Global">🌍 Global</option>
+        <option value="Remote">💻 Remote</option>
       </select>
       <button class="btn-search" onclick="doSearch()" data-i18n="search_btn"></button>
     </div>
@@ -132,13 +134,15 @@
         <option value="Part-time">Part-time</option>
       </select>
       <select class="filter-select" id="country-select-filter" onchange="setCountry(this.value)" style="margin-left:auto">
-        <option value="all">All countries</option>
+        <option value="all">All locations</option>
         <option value="Saudi Arabia">🇸🇦 Saudi Arabia</option>
         <option value="UAE">🇦🇪 UAE</option>
         <option value="Qatar">🇶🇦 Qatar</option>
         <option value="Kuwait">🇰🇼 Kuwait</option>
         <option value="Bahrain">🇧🇭 Bahrain</option>
         <option value="Oman">🇴🇲 Oman</option>
+        <option value="Global">🌍 Global</option>
+        <option value="Remote">💻 Remote</option>
       </select>
     </div>
   </div>
