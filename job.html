@@ -92,6 +92,8 @@ footer{background:#0f172a;color:rgba(255,255,255,.65);padding:3rem 0 2rem}
 @keyframes sp{to{transform:rotate(360deg)}}
 @media(max-width:768px){.nav-links{display:none}.job-body{grid-template-columns:1fr}.detail-card{position:static}.job-top{flex-direction:column}}
 </style>
+<script src="js/analytics.js"></script>
+<script src="js/share.js"></script>
 </head>
 <body>
 
@@ -219,6 +221,7 @@ async function loadJob(){
 
     // Page meta
     document.title = (job.title||'Job') + (job.company?' — '+job.company:'') + ' | EzWorkers';
+    if(typeof trackJobView === 'function') trackJobView(job.title, job.company, job.country, job.sector);
     document.querySelector('meta[name="description"]').setAttribute('content',
       (job.title||'Job')+' at '+(job.company||'a company')+' in '+(job.location||job.country||'GCC')+'. Apply on EzWorkers.');
 
@@ -277,7 +280,7 @@ async function loadJob(){
           '<div class="job-logo">'+(job.company||'?').charAt(0).toUpperCase()+'</div>'+
           '<div style="flex:1">'+
             '<div class="job-title">'+(job.title||'Job opportunity')+'</div>'+
-            '<div class="job-company">'+(job.company||'Company not specified')+'</div>'+
+            '<div class="job-company">'+(job.company?'<a href="company.html?name='+encodeURIComponent(job.company)+'" style="color:#64748b;text-decoration:none;border-bottom:1px dotted #94a3b8">'+job.company+'</a>':'Company not specified')+'</div>'+
             '<div class="tags">'+
               (job.country?'<span class="tag tag-country">'+job.country+'</span>':'')+
               (job.location&&job.location!==job.country?'<span class="tag">'+job.location+'</span>':'')+
@@ -286,7 +289,7 @@ async function loadJob(){
               (job.salary?'<span class="tag" style="font-weight:600">'+job.salary+'</span>':'')+
               newBadge+
             '</div>'+
-            '<div class="action-row" id="action-row">'+actionHTML+'</div>'+
+            '<div class="action-row" id="action-row">'+actionHTML+'</div>'+'<div id="job-share-bar"></div>'+
           '</div>'+
         '</div>'+
       '</div></div>'+
