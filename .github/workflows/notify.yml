@@ -1,0 +1,25 @@
+name: EzWorkers Notifications
+
+on:
+  schedule:
+    - cron: "*/30 * * * *"   # Every 30 minutes
+  workflow_dispatch:
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install requests
+      - name: Run notification agent
+        env:
+          SUPABASE_URL:         ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+          BREVO_API_KEY:        ${{ secrets.BREVO_API_KEY }}
+          SITE_URL:             https://ezworkers.com
+        run: python scripts/notify.py
