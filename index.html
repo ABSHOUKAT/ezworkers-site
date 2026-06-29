@@ -46,6 +46,7 @@
   div[style*="grid-template-columns:1fr 1fr;gap:3rem"]{grid-template-columns:1fr!important;gap:1.5rem!important}
 }
 </style>
+<script src="js/analytics.js"></script>
 </head>
 <body>
 
@@ -247,6 +248,9 @@ if (state.country !== 'all') {
 
 function doSearch() {
   state.search  = document.getElementById('search-input').value.trim();
+  if(state.search && typeof trackSearch === 'function') {
+    trackSearch(state.search, state.country, state.sector);
+  }
   state.country = document.getElementById('country-select-hero').value;
   state.page    = 1;
   loadJobs();
