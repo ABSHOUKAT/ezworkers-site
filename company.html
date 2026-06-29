@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Company Profile — EzWorkers</title>
+<meta name="description" content="View company profile and open jobs on EzWorkers GCC Job Board.">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',sans-serif;font-size:15px;color:#1e293b;background:#f8fafc;-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+.wrap{max-width:1060px;margin:0 auto;padding:0 1.25rem}
+.company-hero{background:#fff;border-bottom:1px solid #e2e8f0;padding:2.5rem 0}
+.co-header{display:flex;align-items:flex-start;gap:1.5rem}
+.co-logo{width:80px;height:80px;border:1px solid #e2e8f0;border-radius:16px;background:#f8fafc;display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:700;color:#1A6FC4;flex-shrink:0}
+.co-name{font-size:clamp(1.4rem,3vw,2rem);font-weight:700;color:#0f172a;margin-bottom:.3rem;letter-spacing:-.3px}
+.co-meta{font-size:14px;color:#64748b;margin-bottom:.75rem;display:flex;gap:1rem;flex-wrap:wrap}
+.co-desc{font-size:14px;color:#374151;line-height:1.7;max-width:680px}
+.co-website{display:inline-flex;align-items:center;gap:.4rem;font-size:13px;font-weight:500;color:#1A6FC4;margin-top:.75rem}
+.section{padding:2.5rem 0}
+.section-title{font-size:18px;font-weight:700;color:#0f172a;margin-bottom:1.1rem;letter-spacing:-.2px}
+.jcard{display:grid;grid-template-columns:48px 1fr auto;gap:1rem;align-items:start;padding:1.1rem 1.25rem;border:1px solid #e2e8f0;border-radius:12px;background:#fff;margin-bottom:.75rem;text-decoration:none;color:inherit;transition:box-shadow .15s}
+.jcard:hover{box-shadow:0 2px 12px rgba(0,0,0,.08)}
+.jlogo{width:48px;height:48px;border:1px solid #e2e8f0;border-radius:10px;display:flex;align-items:center;justify-content:center;background:#f8fafc;font-size:18px;font-weight:700;color:#1A6FC4;flex-shrink:0}
+.jtitle{font-size:15px;font-weight:600;color:#0f172a;margin-bottom:.2rem}
+.jco{font-size:13px;color:#64748b;margin-bottom:.4rem}
+.tags{display:flex;gap:.4rem;flex-wrap:wrap}
+.tag{font-size:11px;font-weight:500;padding:2px 8px;border-radius:20px}
+.tc{background:#E6F1FB;color:#1A6FC4}.ts{background:#FEF0E6;color:#F47B2B}.tg{background:#f8fafc;border:1px solid #e2e8f0;color:#64748b}
+.jmeta{font-size:12px;color:#64748b;text-align:right;flex-shrink:0}
+.empty{text-align:center;padding:3rem 0;color:#64748b}
+.spin{width:28px;height:28px;border:3px solid #e2e8f0;border-top-color:#1A6FC4;border-radius:50%;animation:sp .7s linear infinite;margin:3rem auto}
+@keyframes sp{to{transform:rotate(360deg)}}
+footer{background:#0f172a;color:rgba(255,255,255,.65);padding:2rem 1.25rem;text-align:center;font-size:13px;margin-top:2rem}
+.flogo{font-size:16px;font-weight:700;color:#fff;margin-bottom:.5rem}.flogo span{color:#F47B2B}
+@media(max-width:640px){.co-header{flex-direction:column}.jcard{grid-template-columns:40px 1fr}.jmeta{display:none}}
+</style>
+</head>
+<body>
+<div id="ez-nav"></div>
+
+<div id="company-content">
+  <div class="wrap"><div class="spin"></div></div>
+</div>
+
+<footer><div class="flogo">Ez<span>Workers</span></div><p>© 2026 EzWorkers — GCC Job Search Engine</p></footer>
+
+<script src="js/nav.js"></script>
+<script>
+var SB ='https://wxltwnyuhiejavzichfd.supabase.co';
+var KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind4bHR3bnl1aGllamF2emljaGZkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIyMjk4NDYsImV4cCI6MjA5NzgwNTg0Nn0.8PH3VTz2u6rRcu-LqZYGMDbNIdj9YldNBQJ1irTCtI4';
+
+var companyName = new URLSearchParams(location.search).get('name') || '';
+
+function ago(d){if(!d)return'';var diff=Date.now()-new Date(d).getTime(),h=Math.floor(diff/3600000),days=Math.floor(diff/86400000);if(h<24)return h+'h ago';if(days<7)return days+'d ago';return new Date(d).toLocaleDateString('en-GB',{day:'numeric',month:'short'});}
+
+async function load(){
+  var content=document.getElementById('company-content');
+  if(!companyName){content.innerHTML='<div class="wrap" style="padding:3rem 0;text-align:center"><h2>Company not found</h2><a href="index.html" style="color:#1A6FC4;display:block;margin-top:1rem">← Browse jobs</a></div>';return;}
+
+  document.title = companyName + ' Jobs — EzWorkers';
+
+  // Fetch jobs for this company
+  var r = await fetch(SB+'/rest/v1/jobs?company=eq.'+encodeURIComponent(companyName)+'&is_active=eq.true&select=*&order=posted_at.desc&limit=50',
+    {headers:{'apikey':KEY}});
+  var jobs = r.ok ? await r.json() : [];
+
+  // Try to get employer profile for bio/website
+  var pr = await fetch(SB+'/rest/v1/profiles?company_name=eq.'+encodeURIComponent(companyName)+'&role=eq.employer&select=company_name,company_website,bio,full_name&limit=1',
+    {headers:{'apikey':KEY,'Authorization':'Bearer '+KEY}});
+  var profiles = pr.ok ? await pr.json() : [];
+  var employer = profiles[0] || {};
+
+  var initial = companyName.charAt(0).toUpperCase();
+  var jobsHTML = jobs.length ? jobs.map(function(j){
+    return '<a class="jcard" href="job.html?id='+j.id+'">'+
+      '<div class="jlogo">'+initial+'</div>'+
+      '<div><div class="jtitle">'+(j.title||'Job')+'</div>'+
+      '<div class="tags">'+
+        (j.country?'<span class="tag tc">'+j.country+'</span>':'')+
+        (j.sector?'<span class="tag ts">'+j.sector+'</span>':'')+
+        (j.job_type?'<span class="tag tg">'+j.job_type+'</span>':'')+
+      '</div></div>'+
+      '<div class="jmeta">'+ago(j.posted_at)+'</div>'+
+    '</a>';
+  }).join('') : '<div class="empty"><h3>No active jobs</h3><p>This company has no current openings.</p></div>';
+
+  content.innerHTML =
+    '<div class="company-hero"><div class="wrap">'+
+      '<div class="co-header">'+
+        '<div class="co-logo">'+initial+'</div>'+
+        '<div>'+
+          '<div class="co-name">'+companyName+'</div>'+
+          '<div class="co-meta">'+
+            '<span>'+jobs.length+' open job'+(jobs.length!==1?'s':'')+'</span>'+
+            (jobs[0]&&jobs[0].country?'<span>'+jobs[0].country+'</span>':'')+
+          '</div>'+
+          (employer.bio?'<div class="co-desc">'+employer.bio+'</div>':'')+
+          (employer.company_website?'<a href="'+employer.company_website+'" target="_blank" rel="noopener" class="co-website">🌐 Visit website →</a>':'')+
+        '</div>'+
+      '</div>'+
+    '</div></div>'+
+    '<div class="wrap"><div class="section">'+
+      '<div class="section-title">Open positions ('+jobs.length+')</div>'+
+      jobsHTML+
+    '</div></div>';
+}
+
+load();
+</script>
+</body>
+</html>
