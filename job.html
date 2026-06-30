@@ -323,6 +323,21 @@ async function loadJob(){
     if(btnApply2) btnApply2.addEventListener('click', openApplyModal);
     if(btnSave)   btnSave.addEventListener('click',   toggleSave);
 
+    // Insert social share bar
+    var shareEl = document.getElementById('job-share-bar');
+    if(shareEl && typeof insertShareBar === 'function'){
+      insertShareBar(shareEl, {
+        title: (job.title||'Job') + (job.company ? ' at ' + job.company : '') + ' | EzWorkers GCC Jobs',
+        url: window.location.href,
+        description: 'Check out this job on EzWorkers: ' + (job.title||'') + (job.country ? ' in ' + job.country : '')
+      });
+    }
+
+    // Track job view
+    if(typeof trackJobView === 'function'){
+      trackJobView(job.title, job.company, job.country, job.sector);
+    }
+
   }catch(e){
     content.innerHTML='<div class="wrap" style="padding:3rem 0;text-align:center"><h2>Error loading job</h2><p style="color:#64748b;margin-top:.5rem">'+e.message+'</p><a href="index.html" style="color:#1A6FC4;display:block;margin-top:1rem">← Back to jobs</a></div>';
   }
