@@ -15,6 +15,13 @@
 h1{font-size:20px;font-weight:700;color:#0f172a;text-align:center;margin-bottom:.25rem}
 .sub{font-size:13px;color:#64748b;text-align:center;margin-bottom:1.75rem}
 .role-pick{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-bottom:1.25rem}
+.social-btns{display:flex;flex-direction:column;gap:.6rem;margin-bottom:1.25rem}
+.social-btn{display:flex;align-items:center;justify-content:center;gap:.6rem;width:100%;padding:.65rem;border:1px solid #e2e8f0;border-radius:10px;background:#fff;font-size:14px;font-weight:500;color:#1e293b;cursor:pointer;font-family:inherit;transition:all .15s}
+.social-btn:hover{border-color:#94a3b8;background:#f8fafc}
+.social-btn svg{width:18px;height:18px;flex-shrink:0}
+.divider{display:flex;align-items:center;gap:.75rem;margin:1.25rem 0}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:#e2e8f0}
+.divider span{font-size:12px;color:#94a3b8;white-space:nowrap}
 .role-card{border:2px solid #e2e8f0;border-radius:10px;padding:1rem;cursor:pointer;text-align:center;transition:all .15s;user-select:none}
 .role-card.active{border-color:#1A6FC4;background:#E6F1FB}
 .role-icon{font-size:24px;margin-bottom:.3rem}
@@ -42,6 +49,19 @@ h1{font-size:20px;font-weight:700;color:#0f172a;text-align:center;margin-bottom:
   </div>
   <h1>Create your account</h1>
   <p class="sub">Free to join. No credit card needed.</p>
+
+  <div class="social-btns">
+    <button class="social-btn" id="btn-google-reg" type="button">
+      <svg viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+      Continue with Google
+    </button>
+    <button class="social-btn" id="btn-linkedin-reg" type="button">
+      <svg viewBox="0 0 24 24" fill="#0A66C2"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+      Continue with LinkedIn
+    </button>
+  </div>
+  <div class="divider"><span>or use email</span></div>
+
   <p style="font-size:13px;font-weight:500;color:#1e293b;margin-bottom:.6rem">I am a...</p>
   <div class="role-pick">
     <div class="role-card active" id="card-jobseeker"><div class="role-icon">👤</div><div class="role-label">Job seeker</div><div class="role-sub">Looking for work in GCC</div></div>
@@ -62,6 +82,46 @@ var role = 'jobseeker';
 
 // Redirect if already logged in
 try { var s=JSON.parse(localStorage.getItem('ez_session')||'null'); if(s&&s.access_token&&Date.now()/1000<s.expires_at){window.location.href='dashboard.html';} } catch(e){}
+
+// Handle OAuth callback (Google/LinkedIn) — register page can also receive the redirect
+(async function(){
+  var hash = window.location.hash;
+  if(!hash.includes('access_token')) return;
+  var params = new URLSearchParams(hash.replace('#',''));
+  var token = params.get('access_token');
+  if(!token) return;
+  try{
+    var r = await fetch(SB+'/auth/v1/user', { headers:{'apikey':KEY,'Authorization':'Bearer '+token} });
+    var user = await r.json();
+    localStorage.setItem('ez_session', JSON.stringify({
+      access_token: token,
+      refresh_token: params.get('refresh_token')||'',
+      expires_at: Math.floor(Date.now()/1000) + parseInt(params.get('expires_in')||3600),
+      user: user
+    }));
+    // Check for existing profile, create if missing using the role selected before OAuth redirect
+    var pendingRole = localStorage.getItem('ez_pending_role') || 'jobseeker';
+    var pr = await fetch(SB+'/rest/v1/profiles?id=eq.'+user.id+'&select=*&limit=1', { headers:{'apikey':KEY,'Authorization':'Bearer '+token} });
+    var pd = pr.ok ? await pr.json() : [];
+    var profile;
+    if(pd && pd[0]) {
+      profile = pd[0];
+    } else {
+      var fallbackName = (user.user_metadata && (user.user_metadata.full_name || user.user_metadata.name)) || (user.email ? user.email.split('@')[0] : 'User');
+      await fetch(SB+'/rest/v1/profiles', {
+        method:'POST',
+        headers:{'apikey':KEY,'Authorization':'Bearer '+token,'Content-Type':'application/json','Prefer':'resolution=merge-duplicates'},
+        body:JSON.stringify({id:user.id, role:pendingRole, full_name:fallbackName})
+      });
+      var pr2 = await fetch(SB+'/rest/v1/profiles?id=eq.'+user.id+'&select=*&limit=1', { headers:{'apikey':KEY,'Authorization':'Bearer '+token} });
+      var pd2 = pr2.ok ? await pr2.json() : [];
+      profile = (pd2 && pd2[0]) || {id:user.id, role:pendingRole, full_name:fallbackName};
+    }
+    localStorage.setItem('ez_profile', JSON.stringify(profile));
+    localStorage.removeItem('ez_pending_role');
+    window.location.href = profile.role === 'employer' ? 'employer-dashboard.html' : 'dashboard.html';
+  }catch(e){ console.error('OAuth callback error', e); }
+})();
 
 document.getElementById('card-jobseeker').addEventListener('click',function(){
   role='jobseeker';
@@ -129,6 +189,18 @@ document.getElementById('btn-reg').addEventListener('click',async function(){
     msg('err',e.message);
     btn.disabled=false; btn.textContent='Create account';
   }
+});
+
+// Social sign-up — saves the chosen role so the callback can apply it
+document.getElementById('btn-google-reg').addEventListener('click',function(){
+  localStorage.setItem('ez_pending_role', role);
+  var redirectTo = window.location.origin + '/register.html';
+  window.location.href = SB+'/auth/v1/authorize?provider=google&redirect_to='+encodeURIComponent(redirectTo);
+});
+document.getElementById('btn-linkedin-reg').addEventListener('click',function(){
+  localStorage.setItem('ez_pending_role', role);
+  var redirectTo = window.location.origin + '/register.html';
+  window.location.href = SB+'/auth/v1/authorize?provider=linkedin_oidc&redirect_to='+encodeURIComponent(redirectTo);
 });
 </script>
 </body>
