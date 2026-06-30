@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Job Details — EzWorkers</title>
+<meta name="google-site-verification" content="7JY2z2pa6VAKSsWzTp4E1_4s-v7vc0O73CCJJDSssoE">
 <meta name="description" content="View job details on EzWorkers — GCC job search engine.">
 <link rel="canonical" href="https://ezworkers.com/job.html">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Cairo:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -144,6 +145,7 @@ footer{background:#0f172a;color:rgba(255,255,255,.65);padding:3rem 0 2rem}
 <script>
 (function(){
 var SB  = 'https://wxltwnyuhiejavzichfd.supabase.co';
+var APPLY_EMAIL_WORKER_URL = 'https://ezworkers-apply-via-email.ashoukt2001.workers.dev';
 var KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind4bHR3bnl1aGllamF2emljaGZkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIyMjk4NDYsImV4cCI6MjA5NzgwNTg0Nn0.8PH3VTz2u6rRcu-LqZYGMDbNIdj9YldNBQJ1irTCtI4';
 
 // Auth state
@@ -229,13 +231,27 @@ async function loadJob(){
     var ld = {
       '@context':'https://schema.org','@type':'JobPosting',
       title: job.title||'',
-      description: (job.description||'').replace(/<[^>]*>/g,'').substring(0,5000),
-      datePosted: job.posted_at||'',
+      description: job.description ? job.description : '<p>'+(job.title||'Job opportunity')+' at '+(job.company||'a company')+'</p>',
+      datePosted: job.posted_at ? new Date(job.posted_at).toISOString() : new Date().toISOString(),
+      validThrough: new Date(Date.now() + 60*24*60*60*1000).toISOString(),
       employmentType: (job.job_type||'FULL_TIME').toUpperCase().replace(/-/g,'_').replace(/ /g,'_'),
       hiringOrganization:{'@type':'Organization',name:job.company||'Employer'},
-      jobLocation:{'@type':'Place',address:{'@type':'PostalAddress',addressCountry:job.country||''}},
+      jobLocationType: job.country==='Global'||job.is_remote ? 'TELECOMMUTE' : undefined,
+      applicantLocationRequirements: job.country==='Global'||job.is_remote ? {'@type':'Country',name:'GCC'} : undefined,
+      jobLocation: (job.country&&job.country!=='Global') ? {'@type':'Place',address:{'@type':'PostalAddress',addressCountry:job.country||'',addressLocality:job.location||''}} : undefined,
+      identifier:{'@type':'PropertyValue',name:'EzWorkers',value:job.id},
+      url: window.location.href,
     };
-    if(job.salary){ld.baseSalary={'@type':'MonetaryAmount',currency:'SAR',value:{'@type':'QuantitativeValue',value:job.salary}};}
+    if(job.salary){
+      var salaryNum = parseFloat((job.salary+'').replace(/[^0-9.]/g,''));
+      ld.baseSalary={
+        '@type':'MonetaryAmount',
+        currency: job.country==='UAE'?'AED':job.country==='Qatar'?'QAR':job.country==='Kuwait'?'KWD':job.country==='Bahrain'?'BHD':job.country==='Oman'?'OMR':'SAR',
+        value:{'@type':'QuantitativeValue', value: isNaN(salaryNum)?undefined:salaryNum, unitText:'MONTH'}
+      };
+    }
+    // Remove undefined keys so the JSON-LD stays clean
+    Object.keys(ld).forEach(function(k){ if(ld[k]===undefined) delete ld[k]; });
     var ldEl=document.createElement('script');ldEl.type='application/ld+json';ldEl.textContent=JSON.stringify(ld);document.head.appendChild(ldEl);
 
     // Check if saved
@@ -258,14 +274,16 @@ async function loadJob(){
         '<button class="btn-save-job'+(isSaved?' saved':'')+'" id="btn-save">'+
           (isSaved?'🔖 Saved':'🔖 Save job')+
         '</button>';
-      if(href !== '#'){
-        actionHTML += '<a href="'+href+'" target="'+(isEmail?'_self':'_blank')+'" rel="noopener" class="btn-lang" style="font-size:13px">Apply on employer site →</a>';
+      // Only show the direct link when it is a real URL — email-only jobs are
+      // already handled invisibly by "Apply via EzWorkers" (Part E)
+      if(href !== '#' && !isEmail){
+        actionHTML += '<a href="'+href+'" target="_blank" rel="noopener" class="btn-lang" style="font-size:13px">Apply on employer site →</a>';
       }
     } else if(!loggedIn){
       // Not logged in
       actionHTML =
         '<a href="login.html?next='+encodeURIComponent(location.href)+'" class="btn-apply btn-apply-ora">Sign in to apply</a>'+
-        (href!=='#'?'<a href="'+href+'" target="'+(isEmail?'_self':'_blank')+'" rel="noopener" class="btn-signin-prompt">Apply on employer site →</a>':'');
+        (href!=='#' && !isEmail ? '<a href="'+href+'" target="_blank" rel="noopener" class="btn-signin-prompt">Apply on employer site →</a>' : '');
     } else {
       // Employer logged in or no profile
       if(href !== '#'){
@@ -382,12 +400,49 @@ document.getElementById('btn-submit-app').addEventListener('click', async functi
 
     if(r.status===201||r.status===200){
       res.style.display='block'; res.className='app-result ok';
-      res.textContent='Application submitted successfully! Track it in your dashboard.';
       btn.textContent='Applied ✓';
-      // Open employer apply URL too
-      if(currentJob.apply_url){
-        var href=applyHref(currentJob.apply_url);
-        if(href!=='#') setTimeout(function(){window.open(href,currentJob.apply_url.includes('@')?'_self':'_blank');},1200);
+
+      var applyUrl = currentJob.apply_url || '';
+      var isEmailApply = applyUrl.includes('@') && !applyUrl.startsWith('http');
+
+      if(isEmailApply){
+        // No external link — send the application on the candidate's behalf via backend
+        res.textContent='Application submitted successfully! Sending your application to the employer...';
+        try{
+          var pr = await fetch(APPLY_EMAIL_WORKER_URL, {
+            method:'POST',
+            headers:{'Content-Type':'application/json'},
+            body: JSON.stringify({
+              employerEmail:        applyUrl,
+              jobTitle:              currentJob.title || '',
+              company:               currentJob.company || '',
+              candidateName:         (prof&&prof.full_name) || '',
+              candidateEmail:        sess.user.email || '',
+              candidateHeadline:     (prof&&prof.headline) || '',
+              candidateCountry:      (prof&&prof.country) || '',
+              candidateNationality:  (prof&&prof.nationality) || '',
+              candidateVisaStatus:   (prof&&prof.visa_status) || '',
+              candidateExperience:   (prof&&prof.experience_years) || '',
+              candidateCvUrl:        (prof&&prof.cv_url) || '',
+              coverNote:             note
+            })
+          });
+          var pd = await pr.json();
+          if(pr.ok && pd.success){
+            res.textContent='Application submitted and sent to the employer. Track it in your dashboard.';
+          } else {
+            res.textContent='Application saved to your dashboard. We could not auto-send the email — please also apply directly if you have the employer contact.';
+          }
+        }catch(e){
+          res.textContent='Application saved to your dashboard. Email delivery to employer could not be confirmed.';
+        }
+      } else if(applyUrl) {
+        // Real apply URL — open it for the candidate to complete on the employer's site
+        res.textContent='Application submitted successfully! Opening the employer site...';
+        var href=applyHref(applyUrl);
+        if(href!=='#') setTimeout(function(){window.open(href,'_blank');},1000);
+      } else {
+        res.textContent='Application submitted successfully! Track it in your dashboard.';
       }
     } else if(r.status===409){
       res.style.display='block'; res.className='app-result er';
