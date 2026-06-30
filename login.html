@@ -14,6 +14,13 @@
 .logo-name{font-size:22px;font-weight:700;color:#0f172a}.logo-name span{color:#F47B2B}
 h1{font-size:20px;font-weight:700;color:#0f172a;text-align:center;margin-bottom:.25rem}
 .sub{font-size:13px;color:#64748b;text-align:center;margin-bottom:1.5rem}
+.social-btns{display:flex;flex-direction:column;gap:.6rem;margin-bottom:1.25rem}
+.social-btn{display:flex;align-items:center;justify-content:center;gap:.6rem;width:100%;padding:.65rem;border:1px solid #e2e8f0;border-radius:10px;background:#fff;font-size:14px;font-weight:500;color:#1e293b;cursor:pointer;font-family:inherit;transition:all .15s}
+.social-btn:hover{border-color:#94a3b8;background:#f8fafc}
+.social-btn svg{width:18px;height:18px;flex-shrink:0}
+.divider{display:flex;align-items:center;gap:.75rem;margin:1.25rem 0}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:#e2e8f0}
+.divider span{font-size:12px;color:#94a3b8;white-space:nowrap}
 .tabs{display:flex;border-bottom:1px solid #e2e8f0;margin-bottom:1.5rem}
 .tab{flex:1;padding:.6rem;font-size:13px;font-weight:500;color:#64748b;background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;transition:all .15s;font-family:inherit;margin-bottom:-1px}
 .tab.active{color:#1A6FC4;border-bottom-color:#1A6FC4}
@@ -22,16 +29,23 @@ h1{font-size:20px;font-weight:700;color:#0f172a;text-align:center;margin-bottom:
 .field label{display:block;font-size:13px;font-weight:500;color:#1e293b;margin-bottom:.35rem}
 .field input{width:100%;border:1px solid #e2e8f0;border-radius:10px;padding:.65rem .85rem;font-size:14px;font-family:inherit;color:#1e293b;outline:none;transition:border .15s}
 .field input:focus{border-color:#1A6FC4}
-.btn{width:100%;padding:.75rem;background:#1A6FC4;color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;transition:background .15s}
+.btn{width:100%;padding:.75rem;background:#1A6FC4;color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;transition:background .15s;margin-top:.25rem}
 .btn:hover{background:#155fa0}.btn:disabled{background:#93c5fd;cursor:not-allowed}
 .msg{margin-top:.85rem;padding:.75rem 1rem;border-radius:10px;font-size:13px;display:none}
 .msg.ok{background:#f0fdf4;border:1px solid #86efac;color:#15803d}
 .msg.err{background:#fef2f2;border:1px solid #fca5a5;color:#dc2626}
 .footer{text-align:center;margin-top:1.5rem;font-size:13px;color:#64748b}
 .footer a{color:#1A6FC4;font-weight:500}
+.spin-overlay{display:none;position:fixed;inset:0;background:rgba(255,255,255,.85);z-index:999;align-items:center;justify-content:center;flex-direction:column;gap:1rem}
+.spin-overlay.on{display:flex}
+.spin{width:32px;height:32px;border:3px solid #e2e8f0;border-top-color:#1A6FC4;border-radius:50%;animation:sp .7s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
 </style>
 </head>
 <body>
+
+<div class="spin-overlay" id="spin-overlay"><div class="spin"></div><div style="font-size:14px;color:#64748b">Signing you in...</div></div>
+
 <div class="card">
   <div class="logo">
     <div class="logo-mark"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="9" cy="8" r="3.5" stroke="#fff" stroke-width="1.8"/><path d="M3 19c0-3.314 2.686-6 6-6" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/><path d="M15 13l2 2 4-4" stroke="#F47B2B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
@@ -39,6 +53,20 @@ h1{font-size:20px;font-weight:700;color:#0f172a;text-align:center;margin-bottom:
   </div>
   <h1>Welcome back</h1>
   <p class="sub">Sign in to your EzWorkers account</p>
+
+  <div class="social-btns">
+    <button class="social-btn" id="btn-google">
+      <svg viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+      Continue with Google
+    </button>
+    <button class="social-btn" id="btn-linkedin">
+      <svg viewBox="0 0 24 24" fill="#0A66C2"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+      Continue with LinkedIn
+    </button>
+  </div>
+
+  <div class="divider"><span>or use email</span></div>
+
   <div class="tabs">
     <button class="tab active" id="tab-pw">Password</button>
     <button class="tab" id="tab-ml">Magic link</button>
@@ -56,6 +84,7 @@ h1{font-size:20px;font-weight:700;color:#0f172a;text-align:center;margin-bottom:
   </div>
   <div class="footer">No account? <a href="register.html">Create one free</a></div>
 </div>
+
 <script>
 var SB  = 'https://wxltwnyuhiejavzichfd.supabase.co';
 var KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind4bHR3bnl1aGllamF2emljaGZkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIyMjk4NDYsImV4cCI6MjA5NzgwNTg0Nn0.8PH3VTz2u6rRcu-LqZYGMDbNIdj9YldNBQJ1irTCtI4';
@@ -63,24 +92,62 @@ var KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6
 // Already logged in?
 try{var s=JSON.parse(localStorage.getItem('ez_session')||'null');if(s&&s.access_token&&Date.now()/1000<s.expires_at){var p=JSON.parse(localStorage.getItem('ez_profile')||'{}');window.location.href=p.role==='employer'?'employer-dashboard.html':'dashboard.html';}}catch(e){}
 
-// Handle magic link token in URL hash
+function showSpin(on){document.getElementById('spin-overlay').classList.toggle('on',on);}
+
+// Ensure a profile row exists for this user (handles OAuth, magic link, first-time sign-ins)
+async function ensureProfile(userId, token, fallbackName, fallbackEmail){
+  var r = await fetch(SB+'/rest/v1/profiles?id=eq.'+userId+'&select=*&limit=1',{
+    headers:{'apikey':KEY,'Authorization':'Bearer '+token}
+  });
+  var data = r.ok ? await r.json() : [];
+  if(data && data[0]) return data[0];
+
+  // No profile yet — create one (default role jobseeker)
+  var name = fallbackName || (fallbackEmail ? fallbackEmail.split('@')[0] : 'User');
+  await fetch(SB+'/rest/v1/profiles',{
+    method:'POST',
+    headers:{'apikey':KEY,'Authorization':'Bearer '+token,'Content-Type':'application/json','Prefer':'resolution=merge-duplicates'},
+    body:JSON.stringify({id:userId, role:'jobseeker', full_name:name})
+  });
+  var r2 = await fetch(SB+'/rest/v1/profiles?id=eq.'+userId+'&select=*&limit=1',{
+    headers:{'apikey':KEY,'Authorization':'Bearer '+token}
+  });
+  var data2 = r2.ok ? await r2.json() : [];
+  return (data2 && data2[0]) || {id:userId, role:'jobseeker', full_name:name};
+}
+
+async function finishLogin(token, refreshToken, expiresIn, user){
+  localStorage.setItem('ez_session', JSON.stringify({
+    access_token: token,
+    refresh_token: refreshToken || '',
+    expires_at: Math.floor(Date.now()/1000) + (expiresIn || 3600),
+    user: user
+  }));
+  var fallbackName = (user && (user.user_metadata && (user.user_metadata.full_name || user.user_metadata.name))) || '';
+  var profile = await ensureProfile(user.id, token, fallbackName, user.email);
+  localStorage.setItem('ez_profile', JSON.stringify(profile));
+  window.location.href = profile.role === 'employer' ? 'employer-dashboard.html' : 'dashboard.html';
+}
+
+// Handle OAuth / magic link token returned in URL hash
 (async function(){
-  var hash=window.location.hash;
-  if(!hash.includes('access_token'))return;
-  var params=new URLSearchParams(hash.replace('#',''));
-  var token=params.get('access_token');
-  if(!token)return;
+  var hash = window.location.hash;
+  if(!hash.includes('access_token')) return;
+  showSpin(true);
+  var params = new URLSearchParams(hash.replace('#',''));
+  var token = params.get('access_token');
+  if(!token){ showSpin(false); return; }
   try{
-    var r=await fetch(SB+'/auth/v1/user',{headers:{'apikey':KEY,'Authorization':'Bearer '+token}});
-    var user=await r.json();
-    localStorage.setItem('ez_session',JSON.stringify({access_token:token,refresh_token:params.get('refresh_token')||'',expires_at:Math.floor(Date.now()/1000)+parseInt(params.get('expires_in')||3600),user:user}));
-    var r2=await fetch(SB+'/rest/v1/profiles?id=eq.'+user.id+'&select=*&limit=1',{headers:{'apikey':KEY,'Authorization':'Bearer '+token}});
-    var pd=await r2.json();
-    if(pd&&pd[0])localStorage.setItem('ez_profile',JSON.stringify(pd[0]));
-    var profile=JSON.parse(localStorage.getItem('ez_profile')||'{}');
-    window.location.href=profile.role==='employer'?'employer-dashboard.html':'dashboard.html';
-  }catch(e){console.error(e);}
+    var r = await fetch(SB+'/auth/v1/user', { headers:{'apikey':KEY,'Authorization':'Bearer '+token} });
+    var user = await r.json();
+    await finishLogin(token, params.get('refresh_token'), parseInt(params.get('expires_in')||3600), user);
+  }catch(e){
+    showSpin(false);
+    console.error('OAuth callback error', e);
+  }
 })();
+
+function msg(id,type,text){var el=document.getElementById(id);el.className='msg '+type;el.style.display='block';el.textContent=text;}
 
 // Tab switching
 document.getElementById('tab-pw').addEventListener('click',function(){
@@ -91,8 +158,6 @@ document.getElementById('tab-ml').addEventListener('click',function(){
   document.getElementById('tab-ml').classList.add('active');document.getElementById('tab-pw').classList.remove('active');
   document.getElementById('panel-ml').classList.add('active');document.getElementById('panel-pw').classList.remove('active');
 });
-
-function msg(id,type,text){var el=document.getElementById(id);el.className='msg '+type;el.style.display='block';el.textContent=text;}
 
 // Password sign in
 document.getElementById('btn-pw').addEventListener('click',async function(){
@@ -108,29 +173,40 @@ document.getElementById('btn-pw').addEventListener('click',async function(){
     });
     var d=await r.json();
     if(!r.ok)throw new Error(d.error_description||d.msg||d.message||'Sign in failed. Check your email and password.');
-    localStorage.setItem('ez_session',JSON.stringify({access_token:d.access_token,refresh_token:d.refresh_token||'',expires_at:Math.floor(Date.now()/1000)+(d.expires_in||3600),user:d.user}));
-    // Load profile
-    var r2=await fetch(SB+'/rest/v1/profiles?id=eq.'+d.user.id+'&select=*&limit=1',{headers:{'apikey':KEY,'Authorization':'Bearer '+d.access_token}});
-    var pd=await r2.json();
-    if(pd&&pd[0])localStorage.setItem('ez_profile',JSON.stringify(pd[0]));
-    var profile=JSON.parse(localStorage.getItem('ez_profile')||'{}');
-    window.location.href=profile.role==='employer'?'employer-dashboard.html':'dashboard.html';
+    await finishLogin(d.access_token, d.refresh_token, d.expires_in, d.user);
   }catch(e){msg('msg-pw','err',e.message);btn.disabled=false;btn.textContent='Sign in';}
 });
 document.getElementById('pw-pass').addEventListener('keydown',function(e){if(e.key==='Enter')document.getElementById('btn-pw').click();});
 
-// Magic link
+// Magic link — uses the current OTP endpoint (legacy /magiclink endpoint removed)
 document.getElementById('btn-ml').addEventListener('click',async function(){
   var email=document.getElementById('ml-email').value.trim();
   var btn=this;
   if(!email){msg('msg-ml','err','Please enter your email address.');return;}
   btn.disabled=true;btn.textContent='Sending...';
   try{
-    var r=await fetch(SB+'/auth/v1/magiclink',{method:'POST',headers:{'apikey':KEY,'Content-Type':'application/json'},body:JSON.stringify({email:email})});
-    if(!r.ok){var d=await r.json();throw new Error(d.msg||d.message||'Could not send link');}
-    msg('msg-ml','ok','Magic link sent to '+email+'. Check your inbox.');
+    var redirectTo = window.location.origin + window.location.pathname;
+    var r=await fetch(SB+'/auth/v1/otp',{
+      method:'POST',
+      headers:{'apikey':KEY,'Content-Type':'application/json'},
+      body:JSON.stringify({email:email, create_user:true, options:{email_redirect_to:redirectTo}})
+    });
+    if(!r.ok){var d=await r.json();throw new Error(d.msg||d.error_description||d.message||'Could not send link');}
+    msg('msg-ml','ok','Magic link sent to '+email+'. Check your inbox (and spam folder) and click the link to sign in.');
     btn.textContent='Resend link';btn.disabled=false;
   }catch(e){msg('msg-ml','err',e.message);btn.disabled=false;btn.textContent='Send magic link';}
+});
+
+// Google sign in (OAuth redirect flow)
+document.getElementById('btn-google').addEventListener('click',function(){
+  var redirectTo = window.location.origin + '/login.html';
+  window.location.href = SB+'/auth/v1/authorize?provider=google&redirect_to='+encodeURIComponent(redirectTo);
+});
+
+// LinkedIn sign in (OAuth redirect flow)
+document.getElementById('btn-linkedin').addEventListener('click',function(){
+  var redirectTo = window.location.origin + '/login.html';
+  window.location.href = SB+'/auth/v1/authorize?provider=linkedin_oidc&redirect_to='+encodeURIComponent(redirectTo);
 });
 </script>
 </body>
