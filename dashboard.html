@@ -223,6 +223,17 @@ a{color:inherit;text-decoration:none}
   <div class="cv-complete-pct" id="cv-pct">CV completion: 0%</div>
   <div class="cv-progress"><div class="cv-progress-bar" id="cv-bar" style="width:0%"></div></div>
 
+  <!-- LinkedIn import -->
+  <div class="cv-section-card" style="background:#EFF6FF;border-color:#bfdbfe">
+    <div class="cv-sc-header">
+      <div class="cv-sc-title">🔗 Import from LinkedIn</div>
+    </div>
+    <p style="font-size:13px;color:#374151;margin-bottom:.75rem;line-height:1.5">Go to your LinkedIn profile → click "More" → "Save to PDF", open the PDF and copy all the text. Or simply copy your About, Experience and Education sections directly from your profile page. Paste below and we will fill in your CV automatically.</p>
+    <textarea id="li-paste" rows="6" placeholder="Paste your LinkedIn profile text here..." style="width:100%;border:1px solid #bfdbfe;border-radius:10px;padding:.65rem .8rem;font-size:13px;font-family:inherit;color:#1e293b;outline:none;resize:vertical;line-height:1.5"></textarea>
+    <button class="bblu" id="btn-li-import" style="margin-top:.75rem">Import from pasted text</button>
+    <div class="msg" id="msg-li-import"></div>
+  </div>
+
   <!-- Summary -->
   <div class="cv-section-card">
     <div class="cv-sc-header">
@@ -482,6 +493,111 @@ async function deleteCVSection(id){
   await api('/rest/v1/cv_sections?id=eq.'+id,{method:'DELETE'});
   await loadCVData();
 }
+
+// ── LinkedIn import ───────────────────────────────────────────────────────────
+var LINKEDIN_WORKER_URL = 'https://ezworkers-linkedin-parser.ashoukt2001.workers.dev';
+
+document.getElementById('btn-li-import').addEventListener('click', async function(){
+  var text = document.getElementById('li-paste').value.trim();
+  var btn = this;
+  if(text.length < 50){ msg('msg-li-import','er','Please paste more text — at least a few sentences from your LinkedIn profile.'); return; }
+
+  btn.disabled = true; btn.textContent = 'Importing with AI...';
+  msg('msg-li-import','ok','Reading your LinkedIn profile, this takes a few seconds...');
+
+  try {
+    var r = await fetch(LINKEDIN_WORKER_URL, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ text: text })
+    });
+    var result = await r.json();
+    if(!r.ok || !result.success) throw new Error(result.error || 'Could not import LinkedIn data');
+
+    var d = result.data;
+    var savedCount = 0;
+
+    // Save profile fields (full_name, headline)
+    if(d.full_name || d.headline){
+      var profileFields = {};
+      if(d.full_name) profileFields.full_name = d.full_name;
+      if(d.headline)  profileFields.headline  = d.headline;
+      await api('/rest/v1/profiles?id=eq.'+sess.user.id, {method:'PATCH', body:JSON.stringify(profileFields)});
+      prof = Object.assign({}, prof, profileFields);
+      localStorage.setItem('ez_profile', JSON.stringify(prof));
+    }
+
+    // Save summary
+    if(d.summary){
+      await saveCVSection('summary', {text: d.summary}, null);
+      savedCount++;
+    }
+
+    // Save experience entries
+    if(Array.isArray(d.experience)){
+      for(var i=0;i<d.experience.length;i++){
+        var e = d.experience[i];
+        if(e.title || e.company){
+          await saveCVSection('experience', {
+            title: e.title||'', company: e.company||'', location: e.location||'',
+            start_date: e.start_date||'', end_date: e.end_date||'', description: e.description||''
+          }, null);
+          savedCount++;
+        }
+      }
+    }
+
+    // Save education entries
+    if(Array.isArray(d.education)){
+      for(var j=0;j<d.education.length;j++){
+        var ed = d.education[j];
+        if(ed.degree || ed.institution){
+          await saveCVSection('education', {
+            degree: ed.degree||'', field: ed.field||'', institution: ed.institution||'', year: ed.year||''
+          }, null);
+          savedCount++;
+        }
+      }
+    }
+
+    // Save skills
+    if(Array.isArray(d.skills) && d.skills.length){
+      await saveCVSection('skills', {list: d.skills}, null);
+      savedCount++;
+    }
+
+    // Save certifications
+    if(Array.isArray(d.certifications)){
+      for(var k=0;k<d.certifications.length;k++){
+        var c = d.certifications[k];
+        if(c.name){
+          await saveCVSection('certifications', {name:c.name||'', issuer:c.issuer||'', year:c.year||''}, null);
+          savedCount++;
+        }
+      }
+    }
+
+    // Save languages
+    if(Array.isArray(d.languages)){
+      for(var l=0;l<d.languages.length;l++){
+        var lang = d.languages[l];
+        if(lang.language){
+          await saveCVSection('languages', {language:lang.language||'', level:lang.level||'Professional'}, null);
+          savedCount++;
+        }
+      }
+    }
+
+    msg('msg-li-import','ok','Imported successfully! '+savedCount+' section(s) added to your CV. Refreshing...');
+    document.getElementById('li-paste').value = '';
+    initSidebar();
+    await loadCVData();
+
+  } catch(e) {
+    msg('msg-li-import','er','Import failed: '+e.message);
+  }
+  btn.disabled = false; btn.textContent = 'Import from pasted text';
+});
 
 // ── CV Progress ───────────────────────────────────────────────────────────────
 function updateCVProgress(){
