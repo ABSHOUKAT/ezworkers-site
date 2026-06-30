@@ -178,20 +178,23 @@ document.getElementById('btn-pw').addEventListener('click',async function(){
 });
 document.getElementById('pw-pass').addEventListener('keydown',function(e){if(e.key==='Enter')document.getElementById('btn-pw').click();});
 
-// Magic link — uses the current OTP endpoint (legacy /magiclink endpoint removed)
+// Magic link — generated via our own Worker and sent through Brevo,
+// bypassing Supabase's locked email template (free plan restriction)
+var MAGIC_LINK_WORKER_URL = 'https://ezworkers-magic-link.ashoukt2001.workers.dev';
+
 document.getElementById('btn-ml').addEventListener('click',async function(){
   var email=document.getElementById('ml-email').value.trim();
   var btn=this;
   if(!email){msg('msg-ml','err','Please enter your email address.');return;}
   btn.disabled=true;btn.textContent='Sending...';
   try{
-    var redirectTo = window.location.origin + window.location.pathname;
-    var r=await fetch(SB+'/auth/v1/otp',{
+    var r=await fetch(MAGIC_LINK_WORKER_URL,{
       method:'POST',
-      headers:{'apikey':KEY,'Content-Type':'application/json'},
-      body:JSON.stringify({email:email, create_user:true, options:{email_redirect_to:redirectTo}})
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({email:email})
     });
-    if(!r.ok){var d=await r.json();throw new Error(d.msg||d.error_description||d.message||'Could not send link');}
+    var d=await r.json();
+    if(!r.ok || !d.success){throw new Error((d.detail&&d.detail.msg)||d.error||'Could not send link');}
     msg('msg-ml','ok','Magic link sent to '+email+'. Check your inbox (and spam folder) and click the link to sign in.');
     btn.textContent='Resend link';btn.disabled=false;
   }catch(e){msg('msg-ml','err',e.message);btn.disabled=false;btn.textContent='Send magic link';}
