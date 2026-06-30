@@ -6,6 +6,7 @@ EzWorkers serves job seekers (including expatriate professionals navigating GCC 
 
 ## Core pages
 
+- [About EzWorkers](https://ezworkers.com/about.html): Company overview, mission, countries served, and what makes EzWorkers different from global job boards.
 - [Browse jobs](https://ezworkers.com/index.html): Live, searchable job listings across all GCC countries and sectors, filterable by location, sector, and job type.
 - [Jobs in Saudi Arabia](https://ezworkers.com/jobs/saudi-arabia.html): All current Saudi Arabia job listings.
 - [Jobs in UAE](https://ezworkers.com/jobs/uae.html): All current UAE job listings.
