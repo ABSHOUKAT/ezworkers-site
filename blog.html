@@ -29,7 +29,7 @@
 </head>
 <body>
 
-<div id="navbar-placeholder"></div>
+<div id="ez-nav"></div>
 
 <div class="blog-hero">
   <div class="container">
@@ -47,15 +47,16 @@
   </div>
 </div>
 
-<div id="footer-placeholder"></div>
+<footer style="background:#0f172a;color:rgba(255,255,255,.65);padding:2rem 1.25rem;text-align:center;font-size:13px;margin-top:2rem">
+  <div style="font-size:16px;font-weight:700;color:#fff;margin-bottom:.5rem">Ez<span style="color:#F47B2B">Workers</span></div>
+  <p>© 2026 EzWorkers — GCC Job Search Engine</p>
+</footer>
 
+<script src="js/nav.js"></script>
 <script src="js/main.js"></script>
 <script>
 // Reads directly from GitHub raw — no redeployment needed when agent publishes
 const ARTICLES_URL = 'https://raw.githubusercontent.com/ABSHOUKAT/ezworkers-site/main/content/articles.json';
-
-document.getElementById('navbar-placeholder').innerHTML = buildNavbar('blog');
-document.getElementById('footer-placeholder').innerHTML = buildFooter();
 
 function articleCardHTML(a) {
   const title   = currentLang === 'ar' && a.title_ar   ? a.title_ar   : a.title;
@@ -111,4 +112,3 @@ loadArticles();
 </script>
 </body>
 </html>
-
