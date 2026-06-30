@@ -590,7 +590,7 @@ document.getElementById('btn-li-import').addEventListener('click', async functio
 
     msg('msg-li-import','ok','Imported successfully! '+savedCount+' section(s) added to your CV. Refreshing...');
     document.getElementById('li-paste').value = '';
-    initSidebar();
+    initUI();
     await loadCVData();
 
   } catch(e) {
