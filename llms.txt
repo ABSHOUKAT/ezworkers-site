@@ -1,0 +1,36 @@
+# EzWorkers
+
+> EzWorkers is a GCC job search engine connecting professionals with employers across Saudi Arabia, UAE, Qatar, Kuwait, Bahrain, and Oman. The platform auto-aggregates thousands of live job listings updated every 6 hours, covers procurement, construction, engineering, oil and gas, finance, and IT sectors, and lets candidates build a CV, apply directly, and set job alerts.
+
+EzWorkers serves job seekers (including expatriate professionals navigating GCC iqama and visa requirements) and employers posting roles directly. Content updates automatically: jobs every 6 hours, career articles twice weekly.
+
+## Core pages
+
+- [Browse jobs](https://ezworkers.com/index.html): Live, searchable job listings across all GCC countries and sectors, filterable by location, sector, and job type.
+- [Jobs in Saudi Arabia](https://ezworkers.com/jobs/saudi-arabia.html): All current Saudi Arabia job listings.
+- [Jobs in UAE](https://ezworkers.com/jobs/uae.html): All current UAE job listings.
+- [Jobs in Qatar](https://ezworkers.com/jobs/qatar.html): All current Qatar job listings.
+- [Jobs in Kuwait](https://ezworkers.com/jobs/kuwait.html): All current Kuwait job listings.
+- [Jobs in Bahrain](https://ezworkers.com/jobs/bahrain.html): All current Bahrain job listings.
+- [Jobs in Oman](https://ezworkers.com/jobs/oman.html): All current Oman job listings.
+- [Procurement and supply chain jobs](https://ezworkers.com/jobs/procurement.html): GCC-wide procurement, sourcing, and supply chain roles.
+- [Construction and infrastructure jobs](https://ezworkers.com/jobs/construction.html): GCC-wide construction, civil engineering, and infrastructure roles.
+- [Engineering and technical jobs](https://ezworkers.com/jobs/engineering.html): GCC-wide engineering and technical roles.
+- [Oil and gas / energy jobs](https://ezworkers.com/jobs/oil-gas.html): GCC-wide energy sector roles.
+
+## Career resources
+
+- [GCC Salary Guide 2026](https://ezworkers.com/salary-guide.html): Current salary benchmarks by role and country across Saudi Arabia, UAE, and Qatar in SAR, AED, and QAR.
+- [Iqama transfer guide](https://ezworkers.com/resources/iqama-guide.html): Step-by-step guide to transferring iqama sponsorship in Saudi Arabia under the post-kafala system, including fees and eligibility.
+- [CV writing guide for GCC jobs](https://ezworkers.com/resources/cv-tips.html): How to format a CV that gets shortlisted by GCC recruiters.
+- [GCC labour laws overview](https://ezworkers.com/resources/labour-laws.html): Summary of employment law provisions across all six GCC countries.
+- [Career insights blog](https://ezworkers.com/blog.html): Twice-weekly articles on GCC career trends, hiring, and professional development.
+
+## For employers
+
+- [Post a job](https://ezworkers.com/post-job.html): Free job posting for employers hiring in the GCC.
+
+## Optional
+
+- [Privacy policy](https://ezworkers.com/privacy.html)
+- [Terms of use](https://ezworkers.com/terms.html)
