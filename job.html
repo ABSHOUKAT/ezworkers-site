@@ -233,6 +233,7 @@ async function loadJob(){
       title: job.title||'',
       description: job.description ? job.description : '<p>'+(job.title||'Job opportunity')+' at '+(job.company||'a company')+'</p>',
       datePosted: job.posted_at ? new Date(job.posted_at).toISOString() : new Date().toISOString(),
+      dateModified: job.posted_at ? new Date(job.posted_at).toISOString() : new Date().toISOString(),
       validThrough: new Date(Date.now() + 60*24*60*60*1000).toISOString(),
       employmentType: (job.job_type||'FULL_TIME').toUpperCase().replace(/-/g,'_').replace(/ /g,'_'),
       hiringOrganization:{'@type':'Organization',name:job.company||'Employer'},
