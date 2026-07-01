@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EzWorkers Admin</title>
+<meta name="robots" content="noindex, nofollow">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',sans-serif;background:#f8fafc;color:#1e293b;font-size:14px}
+.header{background:#0f172a;color:#fff;padding:1rem 1.5rem;display:flex;align-items:center;justify-content:space-between}
+.header h1{font-size:16px;font-weight:600}.header span{color:#F47B2B}
+.tabs{display:flex;background:#fff;border-bottom:1px solid #e2e8f0;padding:0 1.5rem}
+.tab{padding:.75rem 1.25rem;font-size:13px;font-weight:500;color:#64748b;cursor:pointer;border-bottom:2px solid transparent;transition:all .15s;background:none;border-top:none;border-left:none;border-right:none;font-family:inherit}
+.tab.on{color:#1A6FC4;border-bottom-color:#1A6FC4}
+.panel{display:none;padding:1.5rem}.panel.on{display:block}
+.wrap{max-width:960px}
+.card{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:1.25rem;margin-bottom:1.25rem}
+.card-title{font-size:14px;font-weight:600;color:#0f172a;margin-bottom:.85rem}
+.f{margin-bottom:.85rem}
+.f label{display:block;font-size:12px;font-weight:500;color:#374151;margin-bottom:.3rem}
+textarea,input,select{width:100%;border:1px solid #e2e8f0;border-radius:8px;padding:.55rem .75rem;font-size:13px;font-family:inherit;color:#1e293b;outline:none;transition:border .15s;background:#fff}
+textarea:focus,input:focus,select:focus{border-color:#1A6FC4}
+textarea{min-height:200px;resize:vertical;line-height:1.5}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:.75rem}
+.btn-blue{background:#1A6FC4;color:#fff;border:none;border-radius:8px;padding:.55rem 1.25rem;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit}
+.btn-blue:hover{background:#155fa0}
+.btn-blue:disabled{background:#93c5fd;cursor:not-allowed}
+.btn-ora{background:#F47B2B;color:#fff;border:none;border-radius:8px;padding:.55rem 1.25rem;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit}
+.btn-red{background:#dc2626;color:#fff;border:none;border-radius:8px;padding:.45rem .85rem;font-size:12px;font-weight:500;cursor:pointer;font-family:inherit}
+.btn-gray{background:#f8fafc;color:#374151;border:1px solid #e2e8f0;border-radius:8px;padding:.45rem .85rem;font-size:12px;font-weight:500;cursor:pointer;font-family:inherit}
+.msg{margin-top:.75rem;padding:.6rem .85rem;border-radius:8px;font-size:13px;display:none}
+.msg.ok{background:#f0fdf4;color:#15803d;border:1px solid #86efac}
+.msg.er{background:#fef2f2;color:#dc2626;border:1px solid #fca5a5}
+.job-row{border:1px solid #e2e8f0;border-radius:10px;padding:.85rem 1rem;margin-bottom:.6rem;background:#fff}
+.job-row-top{display:flex;align-items:start;justify-content:space-between;gap:1rem}
+.job-title-txt{font-size:14px;font-weight:600;color:#0f172a}
+.job-meta{font-size:12px;color:#64748b;margin-top:.2rem}
+.job-actions{display:flex;gap:.4rem;flex-shrink:0}
+.job-edit-form{display:none;margin-top:.85rem;padding-top:.85rem;border-top:1px solid #f1f5f9}
+.badge{font-size:11px;font-weight:500;padding:2px 8px;border-radius:20px}
+.b-active{background:#DCFCE7;color:#15803D}
+.b-inactive{background:#FEF2F2;color:#DC2626}
+.spin{width:24px;height:24px;border:3px solid #e2e8f0;border-top-color:#1A6FC4;border-radius:50%;animation:sp .7s linear infinite;margin:1.5rem auto}
+@keyframes sp{to{transform:rotate(360deg)}}
+.pin-gate{position:fixed;inset:0;background:#f8fafc;display:flex;align-items:center;justify-content:center;z-index:999}
+.pin-card{background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:2rem;width:320px;text-align:center;box-shadow:0 4px 24px rgba(0,0,0,.08)}
+.pin-logo{font-size:20px;font-weight:700;color:#0f172a;margin-bottom:1.25rem}.pin-logo span{color:#F47B2B}
+</style>
+</head>
+<body>
+
+<div class="pin-gate" id="pin-gate">
+  <div class="pin-card">
+    <div class="pin-logo">Ez<span>Workers</span> Admin</div>
+    <p style="font-size:13px;color:#64748b;margin-bottom:1rem">Enter your admin PIN to continue</p>
+    <input type="password" id="pin-input" placeholder="Admin PIN" style="text-align:center;font-size:18px;letter-spacing:.2em;margin-bottom:.85rem">
+    <button class="btn-blue" style="width:100%" id="pin-btn">Enter</button>
+    <div class="msg" id="pin-msg"></div>
+  </div>
+</div>
+
+<div id="app" style="display:none">
+  <div class="header">
+    <h1>Ez<span>Workers</span> Admin Panel</h1>
+    <span id="hdr-info" style="font-size:12px;color:#94a3b8"></span>
+  </div>
+
+  <div class="tabs">
+    <button class="tab on" data-tab="paste">📋 Paste Job</button>
+    <button class="tab" data-tab="manage">⚙️ Manage Jobs</button>
+  </div>
+
+  <!-- PASTE TAB -->
+  <div class="panel on" id="tab-paste">
+    <div class="wrap">
+      <div class="card">
+        <div class="card-title">Paste a job listing</div>
+        <p style="font-size:12px;color:#64748b;margin-bottom:.85rem">Paste the raw text of any job listing below. AI will extract all fields automatically. Multiple jobs with the same email address are now supported as long as the job title or company differs.</p>
+        <div class="f">
+          <label>Raw job text (paste anything — HTML, plain text, email, PDF text)</label>
+          <textarea id="raw-text" placeholder="Paste full job listing text here..."></textarea>
+        </div>
+        <button class="btn-blue" id="btn-extract">Extract with AI</button>
+        <div class="msg" id="msg-extract"></div>
+      </div>
+
+      <div id="preview-card" style="display:none" class="card">
+        <div class="card-title">Extracted job — review before saving</div>
+        <div class="g2">
+          <div class="f"><label>Job title</label><input type="text" id="f-title"></div>
+          <div class="f"><label>Company</label><input type="text" id="f-company"></div>
+          <div class="f"><label>Country</label>
+            <select id="f-country">
+              <option value="">Select</option>
+              <option>Saudi Arabia</option><option>UAE</option><option>Qatar</option>
+              <option>Kuwait</option><option>Bahrain</option><option>Oman</option>
+              <option>Global</option><option>Remote</option>
+            </select>
+          </div>
+          <div class="f"><label>Location / city</label><input type="text" id="f-location"></div>
+          <div class="f"><label>Sector</label>
+            <select id="f-sector">
+              <option value="">Select</option>
+              <option>Procurement & Supply Chain</option>
+              <option>Construction & Infrastructure</option>
+              <option>Engineering & Technical</option>
+              <option>Oil & Gas / Energy</option>
+              <option>Finance & Banking</option>
+              <option>IT & Technology</option>
+              <option>HR & Admin</option>
+              <option>Healthcare</option>
+              <option>General</option>
+            </select>
+          </div>
+          <div class="f"><label>Job type</label>
+            <select id="f-jobtype">
+              <option>Full-time</option><option>Part-time</option>
+              <option>Contract</option><option>Remote</option><option>Freelance</option>
+            </select>
+          </div>
+          <div class="f"><label>Salary</label><input type="text" id="f-salary" placeholder="e.g. SAR 25,000/month"></div>
+          <div class="f"><label>Apply URL or email</label><input type="text" id="f-apply"></div>
+        </div>
+        <div class="f"><label>Description</label><textarea id="f-desc" style="min-height:120px"></textarea></div>
+        <div style="display:flex;gap:.6rem">
+          <button class="btn-blue" id="btn-save-job">Save to EzWorkers</button>
+          <button class="btn-gray" id="btn-clear">Clear</button>
+        </div>
+        <div class="msg" id="msg-save"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MANAGE TAB -->
+  <div class="panel" id="tab-manage">
+    <div class="wrap">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem">
+        <div style="display:flex;gap:.5rem;align-items:center">
+          <input type="text" id="search-jobs" placeholder="Search by title or company..." style="width:260px">
+          <select id="filter-country" style="width:160px">
+            <option value="">All countries</option>
+            <option>Saudi Arabia</option><option>UAE</option><option>Qatar</option>
+            <option>Kuwait</option><option>Bahrain</option><option>Oman</option>
+            <option>Global</option>
+          </select>
+          <button class="btn-gray" id="btn-load-jobs">Search</button>
+        </div>
+        <span id="job-count" style="font-size:12px;color:#64748b"></span>
+      </div>
+      <div id="jobs-list"><div class="spin"></div></div>
+    </div>
+  </div>
+
+</div><!-- /app -->
+
+<script>
+var WORKER_URL = 'https://ezworkers-paste-agent.ashoukt2001.workers.dev';
+var SB  = 'https://wxltwnyuhiejavzichfd.supabase.co';
+var KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind4bHR3bnl1aGllamF2emljaGZkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIyMjk4NDYsImV4cCI6MjA5NzgwNTg0Nn0.8PH3VTz2u6rRcu-LqZYGMDbNIdj9YldNBQJ1irTCtI4';
+var SVC = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind4bHR3bnl1aGllamF2emljaGZkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4MjIyOTg0NiwiZXhwIjoyMDk3ODA1ODQ2fQ.0Gyhc7C_NDRjxUlmionc-J0NouAC4c3Kcf8WlsXvo8w';
+
+var adminPin = '';
+
+// PIN gate
+function msg(id,type,text){var el=document.getElementById(id);el.className='msg '+type;el.style.display='block';el.textContent=text;}
+
+document.getElementById('pin-btn').addEventListener('click', checkPin);
+document.getElementById('pin-input').addEventListener('keydown',function(e){if(e.key==='Enter')checkPin();});
+
+function checkPin(){
+  var pin = document.getElementById('pin-input').value.trim();
+  if(!pin){msg('pin-msg','er','Enter your PIN.');return;}
+  adminPin = pin;
+  document.getElementById('pin-gate').style.display='none';
+  document.getElementById('app').style.display='block';
+  document.getElementById('hdr-info').textContent='Manage jobs across all sources';
+  loadJobs();
+}
+
+// Tab switching
+document.querySelectorAll('.tab').forEach(function(btn){
+  btn.addEventListener('click',function(){
+    document.querySelectorAll('.tab').forEach(function(b){b.classList.remove('on');});
+    document.querySelectorAll('.panel').forEach(function(p){p.classList.remove('on');});
+    this.classList.add('on');
+    document.getElementById('tab-'+this.getAttribute('data-tab')).classList.add('on');
+    if(this.getAttribute('data-tab')==='manage') loadJobs();
+  });
+});
+
+// Extract with AI
+document.getElementById('btn-extract').addEventListener('click',async function(){
+  var text = document.getElementById('raw-text').value.trim();
+  if(!text){msg('msg-extract','er','Paste some job listing text first.');return;}
+  var btn=this;btn.disabled=true;btn.textContent='Extracting...';
+  try{
+    var r = await fetch(WORKER_URL, {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({pin:adminPin, text:text, mode:'extract_only'})
+    });
+    var d = await r.json();
+    if(!r.ok || d.error) throw new Error(d.error || d.detail || 'Extraction failed');
+    // Populate preview form
+    var job = d.extracted || d;
+    document.getElementById('f-title').value   = job.title || '';
+    document.getElementById('f-company').value = job.company || '';
+    document.getElementById('f-country').value = job.country || '';
+    document.getElementById('f-location').value= job.location || '';
+    document.getElementById('f-sector').value  = job.sector || '';
+    document.getElementById('f-jobtype').value = job.job_type || 'Full-time';
+    document.getElementById('f-salary').value  = job.salary || '';
+    document.getElementById('f-apply').value   = job.apply_url || '';
+    document.getElementById('f-desc').value    = job.description || '';
+    document.getElementById('preview-card').style.display='block';
+    msg('msg-extract','ok','Extracted successfully. Review and edit below, then click Save.');
+  }catch(e){msg('msg-extract','er','Error: '+e.message);}
+  btn.disabled=false;btn.textContent='Extract with AI';
+});
+
+// Clear
+document.getElementById('btn-clear').addEventListener('click',function(){
+  document.getElementById('raw-text').value='';
+  document.getElementById('preview-card').style.display='none';
+  document.getElementById('msg-extract').style.display='none';
+});
+
+// Save job directly to Supabase from admin
+document.getElementById('btn-save-job').addEventListener('click',async function(){
+  var title   = document.getElementById('f-title').value.trim();
+  var company = document.getElementById('f-company').value.trim();
+  var apply   = document.getElementById('f-apply').value.trim();
+  if(!title){msg('msg-save','er','Job title is required.');return;}
+  var btn=this;btn.disabled=true;btn.textContent='Saving...';
+  // Hash: title + company + apply + description (first 200 chars)
+  var hashSource = title+'|'+company+'|'+apply+'|'+document.getElementById('f-desc').value.substring(0,200);
+  var hashBuf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(hashSource));
+  var urlHash = Array.from(new Uint8Array(hashBuf)).map(function(b){return b.toString(16).padStart(2,'0');}).join('').substring(0,32);
+  try{
+    var r = await fetch(SB+'/rest/v1/jobs',{
+      method:'POST',
+      headers:{'apikey':KEY,'Authorization':'Bearer '+SVC,'Content-Type':'application/json','Prefer':'resolution=ignore-duplicates,return=representation'},
+      body:JSON.stringify({
+        title:title, company:company,
+        country:document.getElementById('f-country').value,
+        location:document.getElementById('f-location').value.trim(),
+        sector:document.getElementById('f-sector').value,
+        job_type:document.getElementById('f-jobtype').value,
+        salary:document.getElementById('f-salary').value.trim(),
+        description:document.getElementById('f-desc').value.trim(),
+        apply_url:apply, source:'admin_paste', url_hash:urlHash, is_active:true
+      })
+    });
+    if(r.ok){
+      msg('msg-save','ok','Job saved and live on EzWorkers.');
+      document.getElementById('raw-text').value='';
+      document.getElementById('preview-card').style.display='none';
+    }else{var et=await r.text();msg('msg-save','er','Supabase error: '+et);}
+  }catch(e){msg('msg-save','er','Network error: '+e.message);}
+  btn.disabled=false;btn.textContent='Save to EzWorkers';
+});
+
+// Load/search jobs
+async function loadJobs(){
+  var list=document.getElementById('jobs-list');
+  list.innerHTML='<div class="spin"></div>';
+  var search = document.getElementById('search-jobs').value.trim();
+  var country = document.getElementById('filter-country').value;
+  var url = SB+'/rest/v1/jobs?order=posted_at.desc&limit=100';
+  if(country) url += '&country=eq.'+encodeURIComponent(country);
+  if(search) url += '&or=(title.ilike.*'+encodeURIComponent(search)+'*,company.ilike.*'+encodeURIComponent(search)+'*)';
+  try{
+    var r = await fetch(url,{headers:{'apikey':KEY,'Authorization':'Bearer '+SVC,'Prefer':'count=exact'}});
+    var total = parseInt((r.headers.get('content-range')||'').split('/')[1]||'0');
+    var jobs = r.ok ? await r.json() : [];
+    document.getElementById('job-count').textContent = total.toLocaleString()+' jobs found';
+    if(!jobs.length){list.innerHTML='<p style="color:#64748b;padding:1rem">No jobs found.</p>';return;}
+    list.innerHTML = jobs.map(function(j){
+      return '<div class="job-row" id="row-'+j.id+'">'
+        +'<div class="job-row-top">'
+          +'<div>'
+            +'<div class="job-title-txt">'+escH(j.title||'')+'</div>'
+            +'<div class="job-meta">'+(j.company||'')+(j.country?' · '+j.country:'')+(j.sector?' · '+j.sector:'')+'</div>'
+            +'<div class="job-meta">Source: '+escH(j.source||'')+'  |  '+new Date(j.posted_at).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})+'</div>'
+          +'</div>'
+          +'<div class="job-actions">'
+            +'<span class="badge '+(j.is_active?'b-active':'b-inactive')+'">'+(j.is_active?'Active':'Inactive')+'</span>'
+            +'<button class="btn-gray" onclick="toggleEdit(\''+j.id+'\')">✏️ Edit</button>'
+            +'<button class="btn-gray" onclick="toggleActive(\''+j.id+'\','+j.is_active+')">'+(j.is_active?'Deactivate':'Activate')+'</button>'
+            +'<button class="btn-red" onclick="deleteJob(\''+j.id+'\',\''+escH(j.title||'')+'\')">🗑 Delete</button>'
+          +'</div>'
+        +'</div>'
+        +'<div class="job-edit-form" id="edit-'+j.id+'">'
+          +'<div class="g2">'
+            +'<div class="f"><label>Title</label><input id="e-title-'+j.id+'" value="'+escH(j.title||'')+'"></div>'
+            +'<div class="f"><label>Company</label><input id="e-company-'+j.id+'" value="'+escH(j.company||'')+'"></div>'
+            +'<div class="f"><label>Country</label><select id="e-country-'+j.id+'"><option value="">Select</option><option'+(j.country==='Saudi Arabia'?' selected':'')+'>Saudi Arabia</option><option'+(j.country==='UAE'?' selected':'')+'>UAE</option><option'+(j.country==='Qatar'?' selected':'')+'>Qatar</option><option'+(j.country==='Kuwait'?' selected':'')+'>Kuwait</option><option'+(j.country==='Bahrain'?' selected':'')+'>Bahrain</option><option'+(j.country==='Oman'?' selected':'')+'>Oman</option><option'+(j.country==='Global'?' selected':'')+'>Global</option></select></div>'
+            +'<div class="f"><label>Location</label><input id="e-location-'+j.id+'" value="'+escH(j.location||'')+'"></div>'
+            +'<div class="f"><label>Sector</label><input id="e-sector-'+j.id+'" value="'+escH(j.sector||'')+'"></div>'
+            +'<div class="f"><label>Salary</label><input id="e-salary-'+j.id+'" value="'+escH(j.salary||'')+'"></div>'
+            +'<div class="f" style="grid-column:span 2"><label>Apply URL or email</label><input id="e-apply-'+j.id+'" value="'+escH(j.apply_url||'')+'"></div>'
+          +'</div>'
+          +'<div class="f"><label>Description</label><textarea id="e-desc-'+j.id+'" style="min-height:80px">'+escH(j.description||'')+'</textarea></div>'
+          +'<div style="display:flex;gap:.5rem">'
+            +'<button class="btn-blue" onclick="saveEdit(\''+j.id+'\')">Save changes</button>'
+            +'<button class="btn-gray" onclick="toggleEdit(\''+j.id+'\')">Cancel</button>'
+          +'</div>'
+          +'<div class="msg" id="edit-msg-'+j.id+'"></div>'
+        +'</div>'
+        +'</div>';
+    }).join('');
+  }catch(e){list.innerHTML='<p style="color:#dc2626;padding:1rem">Error loading jobs: '+e.message+'</p>';}
+}
+
+function escH(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
+
+function toggleEdit(id){
+  var el=document.getElementById('edit-'+id);
+  el.style.display = el.style.display==='block' ? 'none' : 'block';
+}
+
+async function toggleActive(id, currentlyActive){
+  if(!confirm('Are you sure?')) return;
+  var r = await fetch(SB+'/rest/v1/jobs?id=eq.'+id,{
+    method:'PATCH',
+    headers:{'apikey':KEY,'Authorization':'Bearer '+SVC,'Content-Type':'application/json'},
+    body:JSON.stringify({is_active:!currentlyActive})
+  });
+  if(r.ok) loadJobs();
+  else alert('Could not update job status.');
+}
+
+async function deleteJob(id, title){
+  if(!confirm('Permanently delete "'+title+'"? This cannot be undone.')) return;
+  var r = await fetch(SB+'/rest/v1/jobs?id=eq.'+id,{
+    method:'DELETE',
+    headers:{'apikey':KEY,'Authorization':'Bearer '+SVC}
+  });
+  if(r.ok){document.getElementById('row-'+id).remove();}
+  else alert('Could not delete job.');
+}
+
+async function saveEdit(id){
+  var btn = document.querySelector('#edit-'+id+' .btn-blue');
+  btn.disabled=true;btn.textContent='Saving...';
+  var fields = {
+    title:    document.getElementById('e-title-'+id).value.trim(),
+    company:  document.getElementById('e-company-'+id).value.trim(),
+    country:  document.getElementById('e-country-'+id).value,
+    location: document.getElementById('e-location-'+id).value.trim(),
+    sector:   document.getElementById('e-sector-'+id).value.trim(),
+    salary:   document.getElementById('e-salary-'+id).value.trim(),
+    apply_url:document.getElementById('e-apply-'+id).value.trim(),
+    description:document.getElementById('e-desc-'+id).value.trim(),
+  };
+  var r = await fetch(SB+'/rest/v1/jobs?id=eq.'+id,{
+    method:'PATCH',
+    headers:{'apikey':KEY,'Authorization':'Bearer '+SVC,'Content-Type':'application/json'},
+    body:JSON.stringify(fields)
+  });
+  var el=document.getElementById('edit-msg-'+id);
+  if(r.ok){
+    el.className='msg ok';el.style.display='block';el.textContent='Saved.';
+    setTimeout(function(){el.style.display='none';toggleEdit(id);loadJobs();},1200);
+  }else{
+    var et=await r.text();
+    el.className='msg er';el.style.display='block';el.textContent='Error: '+et;
+  }
+  btn.disabled=false;btn.textContent='Save changes';
+}
+
+document.getElementById('btn-load-jobs').addEventListener('click',loadJobs);
+document.getElementById('search-jobs').addEventListener('keydown',function(e){if(e.key==='Enter')loadJobs();});
+</script>
+</body>
+</html>
