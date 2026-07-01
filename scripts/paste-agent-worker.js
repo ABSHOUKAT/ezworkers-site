@@ -100,12 +100,24 @@ ${rawText.substring(0, 4000)}`;
     }
 
     // ── Step 2: Generate URL hash for deduplication ────────────────────────
-    const hashSource = extracted.apply_url || extracted.title + extracted.company + rawText.substring(0, 100);
+    // Hash includes title + company + apply_url so same email with different jobs never collides
+    const hashSource = (extracted.title || "") + "|" + (extracted.company || "") + "|" + (extracted.apply_url || "") + "|" + rawText.substring(0, 200);
     const hashBuffer = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(hashSource));
     const urlHash = Array.from(new Uint8Array(hashBuffer))
       .map(b => b.toString(16).padStart(2, "0"))
       .join("")
       .substring(0, 32);
+
+    // ── extract_only mode: return extracted data without saving ────────────
+    // Used by the admin panel preview step so the admin can review/edit before saving
+    if (body.mode === "extract_only") {
+      return new Response(JSON.stringify({
+        success: true,
+        extracted: { ...extracted, url_hash: urlHash }
+      }), {
+        status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" }
+      });
+    }
 
     // ── Step 3: Insert into Supabase ───────────────────────────────────────
     const job = {
