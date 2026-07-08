@@ -57,7 +57,8 @@ footer{background:#0f172a;color:rgba(255,255,255,.65);padding:2rem 1.25rem;text-
 <script src="js/share.js"></script>
 <script src="js/analytics.js"></script>
 <script>
-const ARTICLES_URL = 'https://raw.githubusercontent.com/ABSHOUKAT/ezworkers-site/main/content/articles.json';
+const SB_URL  = 'https://wxltwnyuhiejavzichfd.supabase.co';
+const SB_KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind4bHR3bnl1aGllamF2emljaGZkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIyMjk4NDYsImV4cCI6MjA5NzgwNTg0Nn0.8PH3VTz2u6rRcu-LqZYGMDbNIdj9YldNBQJ1irTCtI4';
 const articleId    = new URLSearchParams(location.search).get('id');
 let currentArticle = null;
 let articleLang    = 'en';
@@ -65,9 +66,13 @@ let articleLang    = 'en';
 async function loadArticle() {
   const container = document.getElementById('article-content');
   try {
-    const r = await fetch(ARTICLES_URL + '?t=' + Date.now());
+    const safeId = encodeURIComponent(articleId || '');
+    const url = SB_URL + '/rest/v1/blog_articles?or=(id.eq.' + safeId + ',slug.eq.' + safeId + ')&limit=1';
+    const r = await fetch(url, {
+      headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY }
+    });
     const articles = await r.json();
-    const article = articles.find(a => a.id === articleId || a.slug === articleId);
+    const article = Array.isArray(articles) ? articles[0] : null;
 
     if (!article) {
       container.innerHTML = `<div class="wrap" style="padding:3rem 0;text-align:center">

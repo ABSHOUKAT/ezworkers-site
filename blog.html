@@ -45,7 +45,7 @@
 <div class="blog-hero">
   <div class="container">
     <h1>GCC career insights</h1>
-    <p>Practical advice for professionals across Saudi Arabia, UAE, Qatar and the Gulf — published every Monday and Thursday</p>
+    <p>Practical advice for professionals across Saudi Arabia, UAE, Qatar and the Gulf</p>
   </div>
 </div>
 
@@ -66,8 +66,11 @@
 <script src="js/nav.js"></script>
 <script src="js/main.js"></script>
 <script>
-// Reads directly from GitHub raw — no redeployment needed when agent publishes
-const ARTICLES_URL = 'https://raw.githubusercontent.com/ABSHOUKAT/ezworkers-site/main/content/articles.json';
+// Reads from Supabase. The database rule only returns articles that are
+// published AND whose publish time has arrived, so scheduling works automatically.
+const SB_URL  = 'https://wxltwnyuhiejavzichfd.supabase.co';
+const SB_KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind4bHR3bnl1aGllamF2emljaGZkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIyMjk4NDYsImV4cCI6MjA5NzgwNTg0Nn0.8PH3VTz2u6rRcu-LqZYGMDbNIdj9YldNBQJ1irTCtI4';
+const ARTICLES_URL = SB_URL + '/rest/v1/blog_articles?select=*&order=publish_at.desc';
 
 function articleCardHTML(a) {
   const title   = currentLang === 'ar' && a.title_ar   ? a.title_ar   : a.title;
@@ -100,7 +103,9 @@ function articleCardHTML(a) {
 async function loadArticles() {
   const grid = document.getElementById('articles-grid');
   try {
-    const r = await fetch(ARTICLES_URL + '?t=' + Date.now());
+    const r = await fetch(ARTICLES_URL, {
+      headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY }
+    });
     if (!r.ok) throw new Error('Could not load articles');
     const articles = await r.json();
 

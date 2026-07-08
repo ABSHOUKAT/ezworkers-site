@@ -253,7 +253,7 @@ async function loadJob(){
     }
     // Remove undefined keys so the JSON-LD stays clean
     Object.keys(ld).forEach(function(k){ if(ld[k]===undefined) delete ld[k]; });
-    var ldEl=document.createElement('script');ldEl.type='application/ld+json';ldEl.textContent=JSON.stringify(ld);document.head.appendChild(ldEl);
+    if(!document.getElementById('ssr-ld')){var ldEl=document.createElement('script');ldEl.type='application/ld+json';ldEl.textContent=JSON.stringify(ld);document.head.appendChild(ldEl);}
 
     // Check if saved
     if(loggedIn && prof){
