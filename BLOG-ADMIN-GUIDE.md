@@ -4,12 +4,22 @@
 This package contains TWO upgrades in one deployment:
 
 UPGRADE 1: Blog admin panel (write, edit, schedule posts yourself)
-UPGRADE 2: Crawler visibility fix. Until now, job pages, the blog, the
-homepage and the country pages were EMPTY for Google, ChatGPT and
-Perplexity because all content loaded with JavaScript. A new file
-called _worker.js now fills every one of those pages with real content
-on the server before it reaches any visitor or crawler. Nothing extra
-to configure: it deploys automatically with the normal upload.
+UPGRADE 2: Crawler visibility fix. Job pages, the blog, the homepage and
+the country pages were EMPTY for Google, ChatGPT and Perplexity because
+all content loaded with JavaScript. A file called _worker.js now fills
+every one of those pages with real content on the server before it
+reaches any visitor or crawler. It deploys automatically with the
+normal upload, no extra configuration.
+
+IMPORTANT NOTE ON THIS VERSION: an earlier version of _worker.js was
+tested insufficiently and broke job, article and blog pages on the
+live site (they loaded blank). This has been found and fixed. This
+version was tested directly against the live production site's real
+behaviour, not just a generic simulation, and rechecked for correct
+HTML structure (matching opening and closing tags) on every page type
+it touches, including all 12 country and sector pages individually.
+An emergency rollback step is included at the bottom of this guide in
+case anything still looks wrong after deploying.
 
 What the blog upgrade changes:
 - The automatic twice-weekly blog generator is STOPPED.
@@ -137,6 +147,24 @@ Do the same view-source check on your article page address.
 Search for the article title. It must be found in the code.
 
 If all 8 pass, the system is fully working.
+
+---
+
+## EMERGENCY ROLLBACK
+
+If anything looks broken after deploying that is not covered above:
+
+1. Go to https://github.com/ABSHOUKAT/ezworkers-site/blob/main/_worker.js
+2. Click the three dots (...) at the top right
+3. Click "Delete file"
+4. Commit the deletion
+5. Redeploy Cloudflare Pages the normal way (Create new deployment,
+   upload all files, Deploy)
+
+Deleting _worker.js instantly returns the site to exactly how it worked
+before this crawler visibility upgrade. Nothing else in this package
+depends on it. The blog admin panel and everything else continues to
+work normally either way.
 
 ---
 
