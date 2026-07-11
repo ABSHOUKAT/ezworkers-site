@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Claim your job posting — EzWorkers</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f0;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:2rem}
+.card{background:#fff;border-radius:16px;padding:2.5rem;width:100%;max-width:440px;box-shadow:0 2px 12px rgba(0,0,0,.08);text-align:center}
+.logo{font-size:20px;font-weight:700;color:#0f172a;margin-bottom:1.5rem}.logo span{color:#F47B2B}
+.spin{width:32px;height:32px;border:3px solid #e2e8f0;border-top-color:#1A6FC4;border-radius:50%;animation:sp .7s linear infinite;margin:1rem auto}
+@keyframes sp{to{transform:rotate(360deg)}}
+h1{font-size:17px;font-weight:700;color:#0f172a;margin-bottom:.5rem}
+p{font-size:14px;color:#64748b;line-height:1.6}
+.err{background:#fef2f2;border:1px solid #fca5a5;color:#dc2626;border-radius:8px;padding:.85rem 1rem;font-size:13px;margin-top:1rem;display:none}
+.btn{display:inline-block;margin-top:1.25rem;padding:.7rem 1.75rem;background:#1A6FC4;color:#fff;border-radius:10px;font-size:14px;font-weight:600;text-decoration:none}
+</style>
+</head>
+<body>
+
+<div class="card">
+  <div class="logo">Ez<span>Workers</span></div>
+  <div id="working">
+    <div class="spin"></div>
+    <h1>Setting up your account...</h1>
+    <p>Please wait a moment while we confirm your details and connect you to this job's applicants.</p>
+  </div>
+  <div id="err-box" class="err"></div>
+</div>
+
+<script>
+var SB='https://wxltwnyuhiejavzichfd.supabase.co';
+var KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind4bHR3bnl1aGllamF2emljaGZkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIyMjk4NDYsImV4cCI6MjA5NzgwNTg0Nn0.8PH3VTz2u6rRcu-LqZYGMDbNIdj9YldNBQJ1irTCtI4';
+
+function showError(msg, showDashboardLink){
+  document.getElementById('working').style.display='none';
+  var box=document.getElementById('err-box');
+  box.style.display='block';
+  box.innerHTML = msg + (showDashboardLink ? '<br><a class="btn" href="employer-dashboard.html">Go to my dashboard</a>' : '<br><a class="btn" href="login.html">Go to sign in</a>');
+}
+
+(async function(){
+  // job_id travels as a normal query parameter (?job_id=...), separate
+  // from the auth tokens which Supabase places in the URL hash (#access_token=...)
+  var jobId = new URLSearchParams(window.location.search).get('job_id');
+  var hash = window.location.hash;
+
+  if(!hash.includes('access_token')){
+    showError('This link is missing sign-in information. It may have already been used, or copied incorrectly. Request a new link from your notification email, or sign in normally below.', false);
+    return;
+  }
+  if(!jobId){
+    showError('This link is missing the job reference. Please use the exact link from your notification email.', false);
+    return;
+  }
+
+  var params = new URLSearchParams(hash.replace('#',''));
+  var token = params.get('access_token');
+  var refreshToken = params.get('refresh_token');
+  var expiresIn = parseInt(params.get('expires_in') || '3600');
+  if(!token){
+    showError('Could not read your sign-in details from this link. Please request a new one.', false);
+    return;
+  }
+
+  try{
+    // Step 1: confirm the token is valid and get the user's id/email
+    var ur = await fetch(SB+'/auth/v1/user', { headers:{'apikey':KEY,'Authorization':'Bearer '+token} });
+    if(!ur.ok){
+      showError('This link has expired or already been used. Please request a new one from your notification email.', false);
+      return;
+    }
+    var user = await ur.json();
+
+    // Step 2: store the session exactly like the normal login flow does,
+    // so the rest of the site (employer-dashboard.html etc.) recognizes it
+    localStorage.setItem('ez_session', JSON.stringify({
+      access_token: token,
+      refresh_token: refreshToken || '',
+      expires_at: Math.floor(Date.now()/1000) + expiresIn,
+      user: user
+    }));
+
+    // Step 3: ensure a profile exists for this user. If one already exists
+    // (any role), we leave it completely untouched — we only ever create
+    // a brand new profile here, never overwrite an existing one.
+    await fetch(SB+'/rest/v1/profiles', {
+      method:'POST',
+      headers:{'apikey':KEY,'Authorization':'Bearer '+token,'Content-Type':'application/json','Prefer':'resolution=ignore-duplicates'},
+      body: JSON.stringify({ id:user.id, role:'employer', full_name:(user.email||'').split('@')[0] })
+    });
+
+    var pr = await fetch(SB+'/rest/v1/profiles?id=eq.'+user.id+'&select=*&limit=1', {
+      headers:{'apikey':KEY,'Authorization':'Bearer '+token}
+    });
+    var pdata = pr.ok ? await pr.json() : [];
+    var profile = (pdata && pdata[0]) || {id:user.id, role:'employer'};
+    localStorage.setItem('ez_profile', JSON.stringify(profile));
+
+    // Step 4: claim the specific job — only succeeds server-side if it is
+    // still unowned; the database itself enforces this, this is not a
+    // trust-the-client check.
+    var cr = await fetch(SB+'/rest/v1/jobs?id=eq.'+encodeURIComponent(jobId), {
+      method:'PATCH',
+      headers:{'apikey':KEY,'Authorization':'Bearer '+token,'Content-Type':'application/json','Prefer':'return=representation'},
+      body: JSON.stringify({ posted_by: user.id })
+    });
+    var claimed = cr.ok ? await cr.json() : [];
+
+    document.getElementById('working').innerHTML =
+      '<h1>' + (claimed && claimed.length ? 'Job claimed successfully' : 'You are signed in') + '</h1>' +
+      '<p>' + (claimed && claimed.length
+        ? 'This job is now linked to your account. Redirecting you to your applicant pipeline...'
+        : 'This job may already be linked to another account, or was claimed already. Redirecting you to your dashboard...') + '</p>';
+
+    setTimeout(function(){
+      window.location.href = (profile.role === 'employer') ? 'employer-dashboard.html' : 'dashboard.html';
+    }, 1400);
+
+  }catch(e){
+    showError('Something went wrong confirming your account. Please try the link again, or sign in normally.', false);
+  }
+})();
+</script>
+</body>
+</html>
