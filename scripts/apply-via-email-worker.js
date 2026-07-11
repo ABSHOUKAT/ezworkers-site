@@ -7,14 +7,67 @@
  * Deploy as: ezworkers-apply-via-email
  * Secrets to set in Worker:
  *   BREVO_API_KEY
- *   SITE_URL (https://ezworkers.com)
+ *   SITE_URL              (https://ezworkers.com)
+ *   SUPABASE_URL           (https://wxltwnyuhiejavzichfd.supabase.co)
+ *   SUPABASE_SERVICE_KEY   (service_role key — used only to check job
+ *                          ownership and generate a claim link; never
+ *                          exposed to the browser)
  *
  * This Worker is called from job.html with the Supabase anon key already
  * validating the request came from a logged-in session client-side. The
- * Worker itself does not touch Supabase — the browser already saved the
- * application row via the existing applications table insert before
- * calling this Worker to send the actual email.
+ * Worker itself does not touch the applications table — the browser
+ * already saved the application row via the existing applications table
+ * insert before calling this Worker to send the actual email.
+ *
+ * In addition to the full candidate details this email has always sent
+ * (kept exactly as before), it now also includes a second, secondary
+ * button: if the job already belongs to a registered employer account,
+ * it links straight to their dashboard; if nobody owns the job yet, it
+ * generates a one-time secure link that lets the employer claim this
+ * specific job and see every applicant to it in one place going forward.
  */
+
+async function buildManageCta(env, jobId, employerEmail) {
+  const SITE = env.SITE_URL || "https://ezworkers.com";
+  if (!jobId || !env.SUPABASE_URL || !env.SUPABASE_SERVICE_KEY) return null;
+
+  try {
+    const jobRes = await fetch(
+      `${env.SUPABASE_URL}/rest/v1/jobs?id=eq.${encodeURIComponent(jobId)}&select=posted_by&limit=1`,
+      { headers: { apikey: env.SUPABASE_SERVICE_KEY, Authorization: `Bearer ${env.SUPABASE_SERVICE_KEY}` } }
+    );
+    if (!jobRes.ok) return null;
+    const rows = await jobRes.json();
+    const postedBy = rows && rows[0] && rows[0].posted_by;
+
+    if (postedBy) {
+      // Already belongs to a registered employer account.
+      return { link: `${SITE}/employer-dashboard.html`, text: "Manage all your applicants in one place →" };
+    }
+
+    // Unclaimed — generate a one-time secure link that signs the employer
+    // in and connects this specific job to their account in one click.
+    const redirectTo = `${SITE}/claim.html?job_id=${encodeURIComponent(jobId)}`;
+    const genRes = await fetch(`${env.SUPABASE_URL}/auth/v1/admin/generate_link`, {
+      method: "POST",
+      headers: {
+        apikey: env.SUPABASE_SERVICE_KEY,
+        Authorization: `Bearer ${env.SUPABASE_SERVICE_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ type: "magiclink", email: employerEmail, options: { redirect_to: redirectTo } }),
+    });
+    if (!genRes.ok) return null;
+    const genData = await genRes.json();
+    const hashedToken = genData.properties?.hashed_token || genData.hashed_token;
+    if (!hashedToken) return null;
+    const claimLink = `${env.SUPABASE_URL}/auth/v1/verify?token=${hashedToken}&type=magiclink&redirect_to=${encodeURIComponent(redirectTo)}`;
+    return { link: claimLink, text: "Claim this job & manage all applicants →" };
+
+  } catch (e) {
+    return null;
+  }
+}
 
 export default {
   async fetch(request, env) {
@@ -41,7 +94,7 @@ export default {
     }
 
     const {
-      employerEmail, jobTitle, company,
+      jobId, employerEmail, jobTitle, company,
       candidateName, candidateEmail, candidateHeadline,
       candidateCountry, candidateNationality, candidateVisaStatus,
       candidateExperience, candidateCvUrl, coverNote
@@ -59,6 +112,11 @@ export default {
     }
 
     const SITE = env.SITE_URL || "https://ezworkers.com";
+
+    // Secondary CTA — added on top of the existing email, never replacing
+    // any of it. If this fails for any reason (missing secrets, network
+    // issue, etc.) the rest of the email still sends normally without it.
+    const manageCta = await buildManageCta(env, jobId, employerEmail);
 
     const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"></head>
 <body style="margin:0;padding:0;background:#f8fafc;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif">
@@ -86,6 +144,10 @@ export default {
 
     ${candidateCvUrl ? `<div style="text-align:center;margin-bottom:1rem"><a href="${candidateCvUrl}" style="display:inline-block;padding:10px 24px;background:#1A6FC4;color:#fff;border-radius:10px;font-size:14px;font-weight:600;text-decoration:none">Download CV</a></div>` : `<p style="font-size:13px;color:#94a3b8;text-align:center">No CV uploaded by candidate</p>`}
 
+    ${manageCta ? `<div style="text-align:center;margin-bottom:1rem;padding-top:.75rem;border-top:1px solid #f1f5f9">
+      <a href="${manageCta.link}" style="display:inline-block;padding:10px 24px;background:#fff;color:#1A6FC4;border:1px solid #1A6FC4;border-radius:10px;font-size:13px;font-weight:600;text-decoration:none">${manageCta.text}</a>
+    </div>` : ""}
+
     <p style="font-size:12px;color:#94a3b8;text-align:center;margin-top:1.25rem">
       Reply directly to this email to contact the candidate at ${candidateEmail}
     </p>
@@ -100,7 +162,7 @@ export default {
         method: "POST",
         headers: { "api-key": env.BREVO_API_KEY, "Content-Type": "application/json" },
         body: JSON.stringify({
-          sender: { name: "EzWorkers", email: "applications@ezworkers.com" },
+          sender: { name: "EzWorkers", email: "hello@ezworkers.com" },
           to: [{ email: employerEmail, name: company || "Hiring Manager" }],
           replyTo: { email: candidateEmail, name: candidateName || candidateEmail },
           subject: `New application for ${jobTitle || "your job"} — via EzWorkers`,
