@@ -423,6 +423,7 @@ document.getElementById('btn-submit-app').addEventListener('click', async functi
             method:'POST',
             headers:{'Content-Type':'application/json'},
             body: JSON.stringify({
+              jobId:                 currentJob.id || '',
               employerEmail:        applyUrl,
               jobTitle:              currentJob.title || '',
               company:               currentJob.company || '',
