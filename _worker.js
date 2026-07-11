@@ -111,6 +111,13 @@ function saneHtml(s) {
     .replace(/javascript:/gi, '');
 }
 
+function maskEmails(s) {
+  // Employer and applicant email addresses must never reach public HTML,
+  // meta descriptions, or JSON-LD. Applications route via the site.
+  return String(s == null ? '' : s)
+    .replace(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g, '[apply via EzWorkers]');
+}
+
 function stripTags(s, max) {
   const t = String(s == null ? '' : s).replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
   return max ? t.substring(0, max) : t;
@@ -149,14 +156,14 @@ async function ssrJob(env, url) {
 
   const title = job.title + (job.company ? ' at ' + job.company : '') +
                 (job.country ? ' - ' + job.country : '') + ' | EzWorkers';
-  const desc = stripTags(job.description, 155) ||
+  const desc = maskEmails(stripTags(job.description, 155)) ||
                (job.title + ' vacancy' + (job.country ? ' in ' + job.country : '') + ' on EzWorkers.');
   const canonical = SITE + '/job?id=' + encodeURIComponent(job.id);
 
   const ld = {
     '@context': 'https://schema.org', '@type': 'JobPosting',
     title: job.title || '',
-    description: saneHtml(job.description) || esc(job.title),
+    description: maskEmails(saneHtml(job.description)) || esc(job.title),
     datePosted: job.posted_at || new Date().toISOString(),
     dateModified: job.posted_at || new Date().toISOString(),
     validThrough: new Date(Date.now() + 60*24*60*60*1000).toISOString(),
@@ -194,7 +201,7 @@ async function ssrJob(env, url) {
       (job.sector ? ' - ' + esc(job.sector) : '') +
     '</p>' +
     (job.salary ? '<p style="font-weight:600;margin-bottom:1rem">Salary: ' + esc(job.salary) + '</p>' : '') +
-    '<div style="line-height:1.8;color:#374151">' + saneHtml(job.description) + '</div>' +
+    '<div style="line-height:1.8;color:#374151">' + maskEmails(saneHtml(job.description)) + '</div>' +
     '<p style="margin-top:1.5rem"><a href="' + SITE + '/">Browse more GCC jobs on EzWorkers</a></p>' +
     '</div>';
 

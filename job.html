@@ -185,13 +185,20 @@ function timeAgo(d){
 function isNew(d){ return d && Date.now()-new Date(d).getTime() < 86400000*3; }
 function applyHref(url){
   if(!url)return'#';
-  if(url.includes('@'))return'mailto:'+url;
+  // Email apply addresses are NEVER exposed as links.
+  // Email applications route through "Apply via EzWorkers" server-side.
+  if(url.includes('@') && !url.startsWith('http'))return'#';
   if(!url.startsWith('http'))return'https://'+url;
   return url;
 }
+function maskEmails(text){
+  // Replace any email address in visible text so employer and applicant
+  // addresses are never exposed to the public or to crawlers.
+  return String(text||'').replace(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g, '[apply via EzWorkers]');
+}
 function formatDesc(text){
   if(!text)return'<p>No description available.</p>';
-  var clean=text.replace(/<[^>]*>/g,'');
+  var clean=maskEmails(text.replace(/<[^>]*>/g,''));
   return clean.split('\n').filter(function(l){return l.trim();}).map(function(l){return'<p>'+l+'</p>';}).join('');
 }
 function drow(label,val){
@@ -231,7 +238,7 @@ async function loadJob(){
     var ld = {
       '@context':'https://schema.org','@type':'JobPosting',
       title: job.title||'',
-      description: job.description ? job.description : '<p>'+(job.title||'Job opportunity')+' at '+(job.company||'a company')+'</p>',
+      description: job.description ? maskEmails(job.description) : '<p>'+(job.title||'Job opportunity')+' at '+(job.company||'a company')+'</p>',
       datePosted: job.posted_at ? new Date(job.posted_at).toISOString() : new Date().toISOString(),
       dateModified: job.posted_at ? new Date(job.posted_at).toISOString() : new Date().toISOString(),
       validThrough: new Date(Date.now() + 60*24*60*60*1000).toISOString(),
@@ -286,9 +293,11 @@ async function loadJob(){
         '<a href="login.html?next='+encodeURIComponent(location.href)+'" class="btn-apply btn-apply-ora">Sign in to apply</a>'+
         (href!=='#' && !isEmail ? '<a href="'+href+'" target="_blank" rel="noopener" class="btn-signin-prompt">Apply on employer site →</a>' : '');
     } else {
-      // Employer logged in or no profile
-      if(href !== '#'){
-        actionHTML = '<a href="'+href+'" target="'+(isEmail?'_self':'_blank')+'" rel="noopener" class="btn-apply btn-apply-ora">Apply for this job</a>';
+      // Employer logged in or no profile loaded.
+      // NEVER render a direct mailto link — email addresses must stay hidden.
+      // Email-apply jobs route through "Apply via EzWorkers" for job seekers only.
+      if(href !== '#' && !isEmail){
+        actionHTML = '<a href="'+href+'" target="_blank" rel="noopener" class="btn-apply btn-apply-ora">Apply for this job</a>';
       }
     }
 
@@ -323,11 +332,11 @@ async function loadJob(){
             drow('Sector', job.sector)+
             drow('Salary', job.salary)+
             drow('Posted', timeAgo(job.posted_at))+
-            (job.source?'<div class="drow"><span class="drow-label">Source</span><span class="source-chip">'+job.source.replace(/_/g,' ')+'</span></div>':'')+
+            ''+
           '</div>'+
           (loggedIn && prof && prof.role !== 'employer' ?
             '<button class="btn-apply btn-apply-ora" id="btn-apply-ez-2" style="display:flex;width:100%;justify-content:center;margin-top:1rem">📋 Apply via EzWorkers</button>'
-            : (href!=='#' ? '<a href="'+href+'" target="'+(isEmail?'_self':'_blank')+'" rel="noopener" class="btn-apply" style="display:flex;width:100%;justify-content:center;margin-top:1rem">Apply for this job</a>' : '')
+            : (href!=='#' && !isEmail ? '<a href="'+href+'" target="_blank" rel="noopener" class="btn-apply" style="display:flex;width:100%;justify-content:center;margin-top:1rem">Apply for this job</a>' : '')
           )+
           '<a href="index.html" style="display:block;text-align:center;margin-top:1rem;font-size:13px;color:#64748b">← Browse all jobs</a>'+
         '</div>'+
