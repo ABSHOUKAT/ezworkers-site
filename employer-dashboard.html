@@ -280,7 +280,7 @@ function renderPipeline(){
         '</div>'+
       '</div>'+
       '<div class="app-actions">'+
-        (p.cv_url?'<a href="'+p.cv_url+'" target="_blank" class="bcv">📄 Download CV</a>':'<span style="font-size:12px;color:#94a3b8">No CV uploaded</span>')+
+        ((a.cv_url||p.cv_url)?'<a href="'+(a.cv_url||p.cv_url)+'" target="_blank" class="bcv">📄 Download CV</a>':'<span style="font-size:12px;color:#94a3b8">No CV uploaded</span>')+
         statusBtns+
         '<button class="bstatus" data-noteid="'+a.id+'" style="background:#f8fafc">✏️ Add note</button>'+
       '</div>'+
@@ -354,7 +354,7 @@ document.getElementById('btn-post-job').addEventListener('click',async function(
     // Determine region
     var gccCountries=['Saudi Arabia','UAE','Qatar','Kuwait','Bahrain','Oman'];
     var region=gccCountries.indexOf(c)!==-1?'GCC':(c==='Remote / Global'?'Remote':'Global');
-    var r=await api('/rest/v1/jobs',{method:'POST',headers:{'Prefer':'resolution=ignore-duplicates'},body:JSON.stringify({title:t,country:c==='Remote / Global'?'Global':c,location:document.getElementById('pj-ci').value.trim(),sector:s,job_type:jt,salary:document.getElementById('pj-sal').value.trim(),description:d,apply_url:a,company:(prof&&prof.company_name)||'Employer',source:'employer_post',url_hash:hash,is_active:true,region:region})});
+    var r=await api('/rest/v1/jobs',{method:'POST',headers:{'Prefer':'resolution=ignore-duplicates'},body:JSON.stringify({title:t,country:c==='Remote / Global'?'Global':c,location:document.getElementById('pj-ci').value.trim(),sector:s,job_type:jt,salary:document.getElementById('pj-sal').value.trim(),description:d,apply_url:a,company:(prof&&prof.company_name)||'Employer',source:'employer_post',url_hash:hash,is_active:true,region:region,posted_by:sess.user.id})});
     if(r.ok){
       msg('msg-post','ok','Job "'+t+'" posted and live on EzWorkers.');
       ['pj-t','pj-ci','pj-sal','pj-d','pj-a'].forEach(function(id){document.getElementById(id).value='';});
