@@ -5,6 +5,11 @@ on:
     - cron: "0 */6 * * *"   # every 6 hours: 00:00, 06:00, 12:00, 18:00 UTC
   workflow_dispatch:          # also allows manual trigger from GitHub Actions tab
 
+# Needed only for the keepalive commit step at the end — everything else
+# in this workflow is unchanged and needs no extra permissions.
+permissions:
+  contents: write
+
 jobs:
   fetch-jobs:
     runs-on: ubuntu-latest
@@ -29,3 +34,23 @@ jobs:
           ADZUNA_APP_ID:        ${{ secrets.ADZUNA_APP_ID }}
           ADZUNA_APP_KEY:       ${{ secrets.ADZUNA_APP_KEY }}
         run: python scripts/fetch_jobs.py
+
+      # ── Keepalive ──────────────────────────────────────────────────
+      # GitHub automatically disables ALL scheduled workflows in a repo
+      # after 60 days with no commits pushed to it (not 60 days of the
+      # workflows not running — specifically no new commits). This step
+      # writes a one-line timestamp file and commits it every run, which
+      # counts as repository activity and resets that 60-day clock for
+      # this workflow AND the other two scheduled workflows in this repo
+      # (notify.yml, alert-digest.yml), since the check is repo-wide, not
+      # per-workflow. This is the only change in this file — everything
+      # above is exactly as it was before.
+      - name: Keepalive commit (prevents GitHub's 60-day auto-disable)
+        run: |
+          mkdir -p .github
+          echo "Last automated run: $(date -u +'%Y-%m-%d %H:%M UTC')" > .github/last-run.txt
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add .github/last-run.txt
+          git diff --staged --quiet || git commit -m "chore: keepalive [skip ci]"
+          git push || echo "Nothing to push or push failed — non-fatal, job fetch already completed successfully above"
