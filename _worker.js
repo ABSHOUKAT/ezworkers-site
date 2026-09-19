@@ -23,9 +23,75 @@ const LIST_FILTERS = {
   '/jobs/oil-gas':      ['sector', 'Oil & Gas / Energy'],
 };
 
+// ── Crawl-visibility footer links ───────────────────────────────────────
+// Added so every page's raw HTML (not just what nav.js injects client-side)
+// contains real, visible links to the site's main sections. Without this,
+// the navigation menu (built entirely by nav.js after page load) is
+// invisible to any crawler or AI tool that doesn't execute JavaScript,
+// making the blog and every other section undiscoverable from the
+// homepage's raw HTML. Absolute paths are used throughout so this same
+// block works correctly no matter which folder depth the page lives in
+// (root, /jobs/, or /resources/).
+const FOOTER_LINKS_HTML = `
+<nav id="ez-crawl-links" aria-label="Site links" style="max-width:1100px;margin:2rem auto 0;padding:1.5rem 1.25rem;border-top:1px solid #e2e8f0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:13px;color:#64748b;line-height:2">
+  <a href="/index.html" style="color:#64748b;margin-right:1rem">Home</a>
+  <a href="/blog.html" style="color:#64748b;margin-right:1rem">Career insights</a>
+  <a href="/salary-guide.html" style="color:#64748b;margin-right:1rem">Salary guide</a>
+  <a href="/resources/iqama-guide.html" style="color:#64748b;margin-right:1rem">Iqama guide</a>
+  <a href="/resources/cv-tips.html" style="color:#64748b;margin-right:1rem">CV tips</a>
+  <a href="/resources/labour-laws.html" style="color:#64748b;margin-right:1rem">Labour laws</a>
+  <a href="/company.html" style="color:#64748b;margin-right:1rem">Post a job</a>
+  <a href="/login.html" style="color:#64748b;margin-right:1rem">Sign in</a>
+  <a href="/register.html" style="color:#64748b;margin-right:1rem">Register</a>
+  <br>
+  <a href="/jobs/saudi-arabia.html" style="color:#64748b;margin-right:1rem">Jobs in Saudi Arabia</a>
+  <a href="/jobs/uae.html" style="color:#64748b;margin-right:1rem">Jobs in UAE</a>
+  <a href="/jobs/qatar.html" style="color:#64748b;margin-right:1rem">Jobs in Qatar</a>
+  <a href="/jobs/kuwait.html" style="color:#64748b;margin-right:1rem">Jobs in Kuwait</a>
+  <a href="/jobs/bahrain.html" style="color:#64748b;margin-right:1rem">Jobs in Bahrain</a>
+  <a href="/jobs/oman.html" style="color:#64748b;margin-right:1rem">Jobs in Oman</a>
+  <a href="/jobs/procurement.html" style="color:#64748b;margin-right:1rem">Procurement jobs</a>
+  <a href="/jobs/construction.html" style="color:#64748b;margin-right:1rem">Construction jobs</a>
+  <a href="/jobs/engineering.html" style="color:#64748b;margin-right:1rem">Engineering jobs</a>
+  <a href="/jobs/oil-gas.html" style="color:#64748b;margin-right:1rem">Oil & gas jobs</a>
+  <a href="/jobs/remote.html" style="color:#64748b;margin-right:1rem">Remote jobs</a>
+  <a href="/about.html" style="color:#64748b;margin-right:1rem">About</a>
+  <a href="/privacy.html" style="color:#64748b;margin-right:1rem">Privacy</a>
+  <a href="/terms.html" style="color:#64748b">Terms</a>
+</nav>`;
+
+function injectFooterLinks(html) {
+  if (!html || !html.includes('</body>') || html.includes('id="ez-crawl-links"')) {
+    return html;
+  }
+  return html.replace('</body>', FOOTER_LINKS_HTML + '\n</body>');
+}
+
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
+    const response = await handleRequest(request, env, url);
+
+    // Admin panels are intentionally excluded (noindex, not meant for
+    // public discovery) and non-HTML assets (css/js/images/etc.) are left
+    // completely untouched — only real HTML pages get the links added.
+    if (url.pathname.startsWith('/admin/')) return response;
+    const contentType = response.headers.get('content-type') || '';
+    if (!contentType.includes('text/html')) return response;
+
+    try {
+      const html = await response.text();
+      const withLinks = injectFooterLinks(html);
+      return new Response(withLinks, { headers: { 'content-type': 'text/html; charset=utf-8' } });
+    } catch (e) {
+      // If anything goes wrong reading/rewriting the body, serve the
+      // original response untouched rather than risk breaking the page.
+      return response;
+    }
+  }
+};
+
+async function handleRequest(request, env, url) {
     let path = url.pathname.replace(/\.html$/, '').replace(/\/$/, '');
     if (path === '') path = '/';
     const wantsHtml = url.pathname.endsWith('.html') || path === '/';
@@ -62,8 +128,7 @@ export default {
     // fonts, etc.) and any getPage failure: pass the original request
     // through completely untouched.
     return env.ASSETS.fetch(request);
-  }
-};
+}
 
 // ── helpers ──────────────────────────────────────────────────────────
 
